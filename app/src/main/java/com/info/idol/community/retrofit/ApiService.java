@@ -5,7 +5,9 @@ import java.util.HashMap;
 import retrofit2.Call;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Query;
 
 public interface ApiService {
     public static final String API_URL="http://35.237.204.193/";
@@ -22,4 +24,8 @@ public interface ApiService {
     @FormUrlEncoded
     @POST("join.php")
     Call<AccessToken> postData(@FieldMap HashMap<String, Object> param);
+
+    @GET("UserValidate.php")
+    Call<UserValidate>getValidate(@Query("userId") String userId);
+
 }
