@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">community</string>
+    <string name="facebook_app_id">1949098845393219</string>
+    <string name="fb_login_protocol_scheme">fb1949098845393219</string>
+    <string name="kakao_app_key">d8de526ce87601a47ca9ba3ad65a8de6</string>
+</resources>

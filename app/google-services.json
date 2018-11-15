@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "627873985828",
+    "firebase_url": "https://persuasive-byte-197207.firebaseio.com",
+    "project_id": "persuasive-byte-197207",
+    "storage_bucket": "persuasive-byte-197207.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:627873985828:android:1d92c29558e1e57b",
+        "android_client_info": {
+          "package_name": "com.info.idol.community"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "627873985828-rdd18moe2v7lk1efidthdmb1sn0m71c2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.info.idol.community",
+            "certificate_hash": "e50dab6195ac33fd649b0cbec51e1fec968b9ec3"
+          }
+        },
+        {
+          "client_id": "627873985828-gn1nelaeko9qnvi8mv7a3003nql4har8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMkxTsX4A7_Kzpgkcd3m1RUW_uEBGynDM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "627873985828-gn1nelaeko9qnvi8mv7a3003nql4har8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
