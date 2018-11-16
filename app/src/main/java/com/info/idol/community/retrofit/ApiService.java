@@ -31,4 +31,7 @@ public interface ApiService {
     @GET("UserValidate.php")
     Call<Boolean>getValidateNick(@Query("userNick") String userNick);
 
+    @FormUrlEncoded
+    @POST("login.php")
+    Call<String> postUserLogin(@FieldMap HashMap<String, Object> param);
 }

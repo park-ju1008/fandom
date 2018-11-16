@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Patterns;
@@ -46,6 +47,9 @@ public class JoinActivity extends AppCompatActivity {
 
 
     private void initView(){
+        final Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(myToolbar);
+        getSupportActionBar().setTitle("회원가입");
         text_id=(TextView)findViewById(R.id.text_id);
         text_nickname=(TextView)findViewById(R.id.text_nickname);
         text_pw=(TextView)findViewById(R.id.text_pw);
@@ -70,7 +74,6 @@ public class JoinActivity extends AppCompatActivity {
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-
                         }
                     };
                     netThread.start();
@@ -108,7 +111,6 @@ public class JoinActivity extends AppCompatActivity {
                                 editor.putString("AccessToken",token);
                                 editor.commit();
 
-
                             }
                         }
 
@@ -120,6 +122,7 @@ public class JoinActivity extends AppCompatActivity {
                     //좋아하는 연예인 설정 화면으로 넘어감.
                     Intent intent=new Intent(view.getContext(),AddInfoActivity.class);
                     startActivity(intent);
+                    finish();
                 }
             }
         });

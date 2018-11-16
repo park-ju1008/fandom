@@ -9,6 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.CallbackManager;
 import com.facebook.login.LoginManager;
@@ -19,16 +21,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.info.idol.community.Class.FacebookloginCallback;
+import com.info.idol.community.Class.KakaologinCallback;
 import com.info.idol.community.retrofit.ApiService;
-import com.kakao.auth.ISessionCallback;
 import com.kakao.auth.Session;
-import com.kakao.network.ErrorResult;
 import com.kakao.usermgmt.LoginButton;
-import com.kakao.usermgmt.UserManagement;
-import com.kakao.usermgmt.callback.MeV2ResponseCallback;
-import com.kakao.usermgmt.response.MeV2Response;
-import com.kakao.util.exception.KakaoException;
 
+import org.w3c.dom.Text;
+
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -49,8 +49,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private com.info.idol.community.custom.LoginButton btn_kakao_custom,btn_facebook_custom,btn_google_custom;
     private LoginButton btn_kakao_login;
     private Button btn_login,btn_join;
+    private TextView text_id,text_pw;
     KakaologinCallback mCallback;
     ApiService retrofitApiService;
+    private String accessToken;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,6 +99,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         btn_login.setOnClickListener(this);
         btn_join=(Button)findViewById(R.id.btn_join);
         btn_join.setOnClickListener(this);
+        //아이디와 비밀번호 textView
+        text_id=(TextView)findViewById(R.id.text_id);
+        text_pw=(TextView)findViewById(R.id.text_pw);
+
     }
 
     @Override
@@ -135,6 +142,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 //좋아하는 연예인 설정 화면으로 넘어감.
                 Intent intent=new Intent(this,AddInfoActivity.class);
                 startActivity(intent);
+                finish();
             } catch (ApiException e) {
 
             }
@@ -160,6 +168,43 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 startActivityForResult(signInIntent, RC_SIGN_IN);
                 break;
             case R.id.btn_login:
+                if(text_id.getText().toString().isEmpty()||text_pw.getText().toString().isEmpty()){
+                    Toast.makeText(this,"아이디/비번을 입력하세요.",Toast.LENGTH_SHORT).show();
+                }else{
+                    Thread netThread = new Thread() {
+                        @Override
+                        public void run() {
+                            try {
+                                HashMap<String, Object> input = new HashMap<>();
+                                input.put("userId", text_id.getText());
+                                input.put("userPW", text_pw.getText());
+                                accessToken = retrofitApiService.postUserLogin(input).execute().body();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    };
+                    netThread.start();
+                    try {
+                        netThread.join();
+                        if(!accessToken.isEmpty()){
+                            SharedPreferences pref=getSharedPreferences("user",MODE_PRIVATE);
+                            SharedPreferences.Editor editor= pref.edit();
+                            editor.putString("AccessToken",accessToken);
+                            editor.commit();
+                            //좋아하는 연예인 설정 화면으로 넘어감.
+                            Intent intent=new Intent(view.getContext(),AddInfoActivity.class);
+
+                            startActivity(intent);
+                            finish();
+                        }else{
+                            Toast.makeText(this,"아이디/비번이 일치하지않습니다.",Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
                 break;
             case R.id.btn_join:
                 Intent intent=new Intent(this,TermsActivity.class);
@@ -167,46 +212,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 break;
         }
     }
-    private class KakaologinCallback implements ISessionCallback {
-        Context mContext;
-        public KakaologinCallback(Context context){
-            this.mContext=context;
-        }
-        // 로그인에 성공한 상태
-        @Override
-        public void onSessionOpened() {
-            requestMe();
-        }
-        // 로그인에 실패한 상태
-        @Override
-        public void onSessionOpenFailed(KakaoException exception) {
-            Log.e("SessionCallback :: ", "onSessionOpenFailed : " + exception.getMessage());
-        }
-        // 사용자 정보 요청
-        public void requestMe() {
-            // 사용자정보 요청 결과에 대한 Callback
-            UserManagement.getInstance().me(new MeV2ResponseCallback(){
-                //사용자정보 요청에 성공한 경우
-                @Override
-                public void onSuccess(MeV2Response result) {
-                    //여기서 디비저장 및 데이터 쉐어드
-                    long id=result.getId();
-                    String nickname=result.getNickname();
-                    Log.e("Profile : ", nickname + " id"+id);
-                    Intent intent=new Intent(mContext,AddInfoActivity.class);
-                    intent.putExtra("type","kakao");
-                    intent.putExtra("userId",Long.toString(id));
-                    intent.putExtra("userName",nickname);
-                    startActivity(intent);
-                }
-                //세션 오픈 실패. 세션이 삭제된 경우.
-                @Override
-                public void onSessionClosed(ErrorResult errorResult) {
 
-                }
-            });
-        }
-
-    }
 
 }

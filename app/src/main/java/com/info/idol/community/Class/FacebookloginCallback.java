@@ -95,7 +95,7 @@ public class FacebookloginCallback implements FacebookCallback<LoginResult> {
                             //좋아하는 연예인 설정 화면으로 넘어감.
                             Intent intent=new Intent(mContext,AddInfoActivity.class);
                             ((Activity)mContext).startActivity(intent);
-
+                            ((Activity)mContext).finish();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
