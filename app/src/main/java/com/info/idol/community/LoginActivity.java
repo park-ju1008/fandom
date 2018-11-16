@@ -2,6 +2,7 @@ package com.info.idol.community;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -29,7 +30,11 @@ import com.kakao.usermgmt.response.MeV2Response;
 import com.kakao.util.exception.KakaoException;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -50,6 +55,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        //쉐어드로 토큰 있다면 바로 넘어가게하기
+        SharedPreferences pref=getSharedPreferences("user",MODE_PRIVATE);
+        String s=pref.getString("AccessToken","");
+        Log.e("eeeaaae",s);
+
+
         //페이스북 CallbackManager를 통해 콜백 관리
         mCallbackManager = CallbackManager.Factory.create();
         mLoginCallback = new FacebookloginCallback(this);
@@ -92,12 +104,36 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         if(requestCode==RC_SIGN_IN){
             Task<GoogleSignInAccount> task=GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
+                //구글 계정 정보를 가져옴.
                 GoogleSignInAccount account=task.getResult(ApiException.class);
-                //구글 로그인 했을시 유저 아이디와 닉네임을 닉네임 설정 화면으로 넘긴다.
+                //구글 로그인 했을시 유저정보를 서버로 전송하여 디비에 저장후 accesstoken을 로컬에 저장한다.
+                HashMap<String, Object> input = new HashMap<>();
+                input.put("userId", account.getId());
+                input.put("userNick", account.getDisplayName());
+                input.put("route","1");
+                retrofitApiService.postUserInfo(input).enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+                        if(response.isSuccessful()){
+                            //가입이 완료 되면 서버로 부터 AccessToken을 발행 시켜서 로컬에 저장한다.
+                            String token=response.body();
+                            Log.d("to", "onResponse: "+token);
+                            SharedPreferences pref=getSharedPreferences("user",MODE_PRIVATE);
+                            SharedPreferences.Editor editor= pref.edit();
+                            editor.putString("AccessToken",token);
+                            editor.commit();
+
+
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+
+                    }
+                });
+                //좋아하는 연예인 설정 화면으로 넘어감.
                 Intent intent=new Intent(this,AddInfoActivity.class);
-                intent.putExtra("type","google");
-                intent.putExtra("userId",account.getId());
-                intent.putExtra("userName",account.getDisplayName());
                 startActivity(intent);
             } catch (ApiException e) {
 

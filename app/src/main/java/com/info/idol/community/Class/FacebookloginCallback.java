@@ -3,6 +3,7 @@ package com.info.idol.community.Class;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -13,9 +14,18 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginResult;
 import com.info.idol.community.AddInfoActivity;
+import com.info.idol.community.retrofit.ApiService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class FacebookloginCallback implements FacebookCallback<LoginResult> {
     Context mContext;
@@ -51,12 +61,41 @@ public class FacebookloginCallback implements FacebookCallback<LoginResult> {
                     @Override
                     public void onCompleted(JSONObject object, GraphResponse response) {
                         try {
-                            object.get("name");
+
+                            Retrofit retrofit=new Retrofit.Builder()
+                                    .baseUrl(ApiService.API_URL)
+                                    .addConverterFactory(GsonConverterFactory.create())
+                                    .build();
+                            ApiService retrofitApiService =retrofit.create(ApiService.class);
+                            HashMap<String, Object> input = new HashMap<>();
+                            input.put("userId", object.getString("id"));
+                            input.put("userNick", object.getString("name"));
+                            input.put("route","2");
+                            retrofitApiService.postUserInfo(input).enqueue(new Callback<String>() {
+                                @Override
+                                public void onResponse(Call<String> call, Response<String> response) {
+                                    if(response.isSuccessful()){
+                                        //가입이 완료 되면 서버로 부터 AccessToken을 발행 시켜서 로컬에 저장한다.
+                                        String token=response.body();
+                                        Log.d("to", "onResponse: "+token);
+                                        SharedPreferences pref=mContext.getSharedPreferences("user",Activity.MODE_PRIVATE);
+                                        SharedPreferences.Editor editor= pref.edit();
+                                        editor.putString("AccessToken",token);
+                                        editor.commit();
+
+
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<String> call, Throwable t) {
+
+                                }
+                            });
+                            //좋아하는 연예인 설정 화면으로 넘어감.
                             Intent intent=new Intent(mContext,AddInfoActivity.class);
-                            intent.putExtra("type","google");
-                            intent.putExtra("userId", object.getString("id"));
-                            intent.putExtra("userName",object.getString("name"));
                             ((Activity)mContext).startActivity(intent);
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

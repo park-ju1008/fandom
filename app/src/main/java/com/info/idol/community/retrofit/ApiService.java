@@ -23,9 +23,12 @@ public interface ApiService {
      */
     @FormUrlEncoded
     @POST("join.php")
-    Call<AccessToken> postData(@FieldMap HashMap<String, Object> param);
+    Call<String> postUserInfo(@FieldMap HashMap<String, Object> param);
 
     @GET("UserValidate.php")
-    Call<UserValidate>getValidate(@Query("userId") String userId);
+    Call<Boolean>getValidateId(@Query("userId") String userId);
+
+    @GET("UserValidate.php")
+    Call<Boolean>getValidateNick(@Query("userNick") String userNick);
 
 }

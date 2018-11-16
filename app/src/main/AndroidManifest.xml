@@ -39,6 +39,7 @@
         </activity>
         <activity android:name=".TermsActivity" />
         <activity android:name=".JoinActivity" />
+        <activity android:name=".AddInfoActivity" />
 
     </application>
 
