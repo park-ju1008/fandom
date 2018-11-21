@@ -120,7 +120,7 @@ public class JoinActivity extends AppCompatActivity {
                         }
                     });
                     //좋아하는 연예인 설정 화면으로 넘어감.
-                    Intent intent=new Intent(view.getContext(),AddInfoActivity.class);
+                    Intent intent=new Intent(view.getContext(),SelectStarActivity.class);
                     startActivity(intent);
                     finish();
                 }

@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.info.idol.community.AddInfoActivity;
+import com.info.idol.community.SelectStarActivity;
 import com.info.idol.community.retrofit.ApiService;
 import com.kakao.auth.ISessionCallback;
 import com.kakao.network.ErrorResult;
@@ -15,6 +15,9 @@ import com.kakao.usermgmt.callback.MeV2ResponseCallback;
 import com.kakao.usermgmt.response.MeV2Response;
 import com.kakao.util.exception.KakaoException;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.HashMap;
 
 import retrofit2.Call;
@@ -44,44 +47,43 @@ public class KakaologinCallback implements ISessionCallback {
         UserManagement.getInstance().me(new MeV2ResponseCallback(){
             //사용자정보 요청에 성공한 경우
             @Override
-            public void onSuccess(MeV2Response result) {
+            public void onSuccess(final MeV2Response result) {
                 //여기서 디비저장 및 데이터 쉐어드
                 Retrofit retrofit=new Retrofit.Builder()
                         .baseUrl(ApiService.API_URL)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build();
-                ApiService retrofitApiService =retrofit.create(ApiService.class);
-                HashMap<String, Object> input = new HashMap<>();
-                input.put("userId", result.getId());
-                input.put("userNick", result.getNickname());
-                input.put("route","3");
-                retrofitApiService.postUserInfo(input).enqueue(new Callback<String>() {
+                final ApiService retrofitApiService =retrofit.create(ApiService.class);
+
+                Thread netThread = new Thread() {
                     @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
-                        if(response.isSuccessful()){
-                            //가입이 완료 되면 서버로 부터 AccessToken을 발행 시켜서 로컬에 저장한다.
-                            String token=response.body();
-                            Log.d("to", "onResponse: "+token);
-                            SharedPreferences pref=mContext.getSharedPreferences("user", Activity.MODE_PRIVATE);
+                    public void run() {
+                        try {
+                            HashMap<String, Object> input = new HashMap<>();
+                            input.put("userId", result.getId());
+                            input.put("userNick", result.getNickname());
+                            input.put("route","3");
+                            String accessToken = retrofitApiService.postUserInfo(input).execute().body();
+                            SharedPreferences pref=mContext.getSharedPreferences("user",Activity.MODE_PRIVATE);
                             SharedPreferences.Editor editor= pref.edit();
-                            editor.putString("AccessToken",token);
+                            editor.putString("AccessToken",accessToken);
                             editor.commit();
-
-
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
-                    }
-
-                    @Override
-                    public void onFailure(Call<String> call, Throwable t) {
 
                     }
-                });
-                //좋아하는 연예인 설정 화면으로 넘어감.
-                Intent intent=new Intent(mContext,AddInfoActivity.class);
-                ((Activity)mContext).startActivity(intent);
-
-
-
+                };
+                netThread.start();
+                try {
+                    netThread.join();
+                    //좋아하는 연예인 설정 화면으로 넘어감.
+                    Intent intent=new Intent(mContext,SelectStarActivity.class);
+                    ((Activity)mContext).startActivity(intent);
+                    ((Activity)mContext).finish();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
             }
             //세션 오픈 실패. 세션이 삭제된 경우.

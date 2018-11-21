@@ -28,11 +28,16 @@ dependencies {
     implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
     // 카카오 로그인 sdk를 사용하기 위해 필요.
     implementation group: project.KAKAO_SDK_GROUP, name: 'usermgmt', version: project.KAKAO_SDK_VERSION
-    implementation 'com.google.firebase:firebase-core:16.0.1'
-    implementation 'com.google.firebase:firebase-auth:16.0.1'
+    implementation 'com.google.firebase:firebase-core:16.0.4'
+    implementation 'com.google.firebase:firebase-auth:16.0.4'
     implementation 'com.google.android.gms:play-services-auth:16.0.0'
     //통신을 위한retrofit 추가
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+    //파싱을 위한 jsoup
+    implementation 'org.jsoup:jsoup:1.11.3'
+    implementation 'com.android.support:recyclerview-v7:27.0.0'
+    implementation 'com.android.support:design:27.0.0'
+    implementation 'com.google.android.gms:play-services-ads:17.1.0'
 }
 apply plugin: 'com.google.gms.google-services'

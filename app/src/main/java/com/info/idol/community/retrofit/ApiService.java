@@ -1,6 +1,9 @@
 package com.info.idol.community.retrofit;
 
+import com.info.idol.community.Class.Star;
+
 import java.util.HashMap;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.FieldMap;
@@ -34,4 +37,10 @@ public interface ApiService {
     @FormUrlEncoded
     @POST("login.php")
     Call<String> postUserLogin(@FieldMap HashMap<String, Object> param);
+
+    @GET("starList.php")
+    Call<List<Star>> getStarList(@Query("start") int start,@Query("end") int end);
+
+    @GET("starInfo.php")
+    Call<Star>getStarInfo(@Query("starId") String id);
 }

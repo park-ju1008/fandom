@@ -32,9 +32,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -62,7 +59,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         //쉐어드로 토큰 있다면 바로 넘어가게하기
         SharedPreferences pref=getSharedPreferences("user",MODE_PRIVATE);
         String s=pref.getString("AccessToken","");
-        Log.e("eeeaaae",s);
+        if(!s.isEmpty()){
+            Intent intent=new Intent(this,SelectStarActivity.class);
+            startActivity(intent);
+            finish();
+        }
 
 
         //페이스북 CallbackManager를 통해 콜백 관리
@@ -112,39 +113,38 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             Task<GoogleSignInAccount> task=GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 //구글 계정 정보를 가져옴.
-                GoogleSignInAccount account=task.getResult(ApiException.class);
+                final GoogleSignInAccount account=task.getResult(ApiException.class);
                 //구글 로그인 했을시 유저정보를 서버로 전송하여 디비에 저장후 accesstoken을 로컬에 저장한다.
-                HashMap<String, Object> input = new HashMap<>();
-                input.put("userId", account.getId());
-                input.put("userNick", account.getDisplayName());
-                input.put("route","1");
-                retrofitApiService.postUserInfo(input).enqueue(new Callback<String>() {
+
+                Thread netThread = new Thread() {
                     @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
-                        if(response.isSuccessful()){
-                            //가입이 완료 되면 서버로 부터 AccessToken을 발행 시켜서 로컬에 저장한다.
-                            String token=response.body();
-                            Log.d("to", "onResponse: "+token);
+                    public void run() {
+                        try {
+                            HashMap<String, Object> input = new HashMap<>();
+                            input.put("userId", account.getId());
+                            input.put("userNick", account.getDisplayName());
+                            input.put("route","1");
+                            accessToken = retrofitApiService.postUserInfo(input).execute().body();
                             SharedPreferences pref=getSharedPreferences("user",MODE_PRIVATE);
                             SharedPreferences.Editor editor= pref.edit();
-                            editor.putString("AccessToken",token);
+                            editor.putString("AccessToken",accessToken);
                             editor.commit();
-
-
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
-                    }
-
-                    @Override
-                    public void onFailure(Call<String> call, Throwable t) {
 
                     }
-                });
+                };
+                netThread.start();
+                netThread.join();
                 //좋아하는 연예인 설정 화면으로 넘어감.
-                Intent intent=new Intent(this,AddInfoActivity.class);
+                Intent intent=new Intent(this,SelectStarActivity.class);
                 startActivity(intent);
                 finish();
             } catch (ApiException e) {
 
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
         //페이스북 로그인 요청시 결과를
@@ -194,7 +194,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             editor.putString("AccessToken",accessToken);
                             editor.commit();
                             //좋아하는 연예인 설정 화면으로 넘어감.
-                            Intent intent=new Intent(view.getContext(),AddInfoActivity.class);
+                            Intent intent=new Intent(view.getContext(),SelectStarActivity.class);
 
                             startActivity(intent);
                             finish();

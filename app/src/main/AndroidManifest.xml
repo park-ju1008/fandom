@@ -3,6 +3,7 @@
     package="com.info.idol.community">
     <!-- 네트워크 사용에 대한 퍼미션 -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <application
         android:name=".GlobalApplication"
         android:allowBackup="true"
@@ -11,6 +12,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-2103805624018610~8452095157"/>
         <!--페이스북 메타데이터-->
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
         <!--카카오톡 메타데이터-->
@@ -27,7 +31,7 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
-        <activity android:name="com.info.idol.community.MainActivity">
+        <activity android:name="com.info.idol.community.main.MainActivity">
 
         </activity>
         <activity android:name="com.info.idol.community.LoginActivity">
@@ -39,8 +43,17 @@
         </activity>
         <activity android:name=".TermsActivity" />
         <activity android:name=".JoinActivity" />
-        <activity android:name=".AddInfoActivity" />
+        <activity android:name=".SelectStarActivity" />
+        <activity android:name=".main.BoardActivity" />
+        <activity android:name=".main.ScheduleActivity" />
+        <activity android:name=".NoticActivity">
+            <meta-data android:name="com.google.android.gms.version"
+                android:value="@integer/google_play_services_version"/>
+        </activity>
 
+        <activity android:name="com.google.android.gms.ads.AdActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:theme="@android:style/Theme.Translucent"/>
     </application>
 
 </manifest>
