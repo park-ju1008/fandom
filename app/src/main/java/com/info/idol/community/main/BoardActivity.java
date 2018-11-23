@@ -1,6 +1,5 @@
 package com.info.idol.community.main;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -14,10 +13,8 @@ import android.widget.TextView;
 
 import com.info.idol.community.Class.Star;
 import com.info.idol.community.GlobalApplication;
-import com.info.idol.community.NoticActivity;
+import com.info.idol.community.NoticeActivity;
 import com.info.idol.community.R;
-
-import org.w3c.dom.Text;
 
 public class BoardActivity extends BottomNavigationParentActivity implements TextView.OnClickListener {
     final static int ENT_SM = 1;
@@ -103,7 +100,7 @@ public class BoardActivity extends BottomNavigationParentActivity implements Tex
             case R.id.b_goods:
                 break;
                 default:
-                    Intent intent=new Intent(this,NoticActivity.class);
+                    Intent intent=new Intent(this,NoticeActivity.class);
                     startActivity(intent);
                     Log.v("www","ee");
                     break;

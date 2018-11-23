@@ -10,7 +10,7 @@ public class Star implements Serializable {
     private String domainkey;
     private String boardkey;
     private String domain;
-    private String notic;
+    private String notice;
     private String schedule;
     private int ent;
 
@@ -35,8 +35,8 @@ public class Star implements Serializable {
         return domain;
     }
 
-    public String getNotic() {
-        return notic;
+    public String getNotice() {
+        return notice;
     }
 
     public String getSchedule() {

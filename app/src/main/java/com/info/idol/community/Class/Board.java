@@ -6,6 +6,12 @@ public class Board {
     private String date;
     private String writer;
 
+    public Board(String bno, String title, String date) {
+        this.bno = bno;
+        this.title = title;
+        this.date = date;
+    }
+
     public Board(String bno, String title, String date, String writer) {
         this.bno = bno;
         this.title = title;

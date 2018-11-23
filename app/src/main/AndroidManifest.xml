@@ -46,7 +46,7 @@
         <activity android:name=".SelectStarActivity" />
         <activity android:name=".main.BoardActivity" />
         <activity android:name=".main.ScheduleActivity" />
-        <activity android:name=".NoticActivity">
+        <activity android:name=".NoticeActivity">
             <meta-data android:name="com.google.android.gms.version"
                 android:value="@integer/google_play_services_version"/>
         </activity>
@@ -54,6 +54,7 @@
         <activity android:name="com.google.android.gms.ads.AdActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:theme="@android:style/Theme.Translucent"/>
+        <activity android:name=".NoticeDetailActivity" />
     </application>
 
 </manifest>

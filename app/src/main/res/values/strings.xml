@@ -3,7 +3,8 @@
     <string name="facebook_app_id">1949098845393219</string>
     <string name="fb_login_protocol_scheme">fb1949098845393219</string>
     <string name="kakao_app_key">d8de526ce87601a47ca9ba3ad65a8de6</string>
-    <string name="banner_ad_unit_id">ca-app-pub-2103805624018610/8094794515</string>
+    <!--<string name="banner_ad_unit_id">ca-app-pub-2103805624018610/8094794515</string>-->
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
     <string name="selection_home">홈</string>
     <string name="selection_board">게시판</string>
     <string name="selection_schedule">스케줄</string>

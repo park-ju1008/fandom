@@ -11,20 +11,20 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.info.idol.community.Class.Board;
-import com.info.idol.community.NoticViewActivity;
+import com.info.idol.community.NoticeDetailActivity;
 import com.info.idol.community.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class NoticAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class NoticeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final int VIEW_ITEM=1;
     private final int VIEW_PROG=0;
     private ArrayList<Board> itemList;
     private OnLoadMoreListener mOnLoadMoreListener;
     private boolean isMoreLoading = true;
 
-    public NoticAdapter(OnLoadMoreListener onLoadMoreListener){
+    public NoticeAdapter(OnLoadMoreListener onLoadMoreListener){
         this.mOnLoadMoreListener=onLoadMoreListener;
         itemList=new ArrayList<>();
     }
@@ -32,7 +32,7 @@ public class NoticAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if(viewType==VIEW_ITEM){
-            return new BoardViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_notic,parent,false));
+            return new BoardViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_notice,parent,false));
         }else{
             return new ProgressViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_progress,parent,false));
         }
@@ -50,8 +50,10 @@ public class NoticAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 @Override
                 public void onClick(View view) {
                     //다음 엑티비티로 게시물 번호 넘겨줌
-                    Intent intent=new Intent(view.getContext(), NoticViewActivity.class);
+                    Intent intent=new Intent(view.getContext(), NoticeDetailActivity.class);
                     intent.putExtra("bno",itemList.get(position).getBno());
+                    intent.putExtra("title",itemList.get(position).getTitle());
+                    intent.putExtra("date",itemList.get(position).getDate());
                     view.getContext().startActivity(intent);
                 }
             });
@@ -94,7 +96,7 @@ public class NoticAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 @Override
                 public void run() {
                     itemList.add(null);
-                    notifyItemInserted(itemList.size() - 1);
+                    notifyItemInserted(itemList.size()-1);
                     mOnLoadMoreListener.onLoadMore();
                 }
             });

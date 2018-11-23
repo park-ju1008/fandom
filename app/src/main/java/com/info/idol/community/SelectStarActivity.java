@@ -110,7 +110,7 @@ public class SelectStarActivity extends AppCompatActivity  implements StarSelAda
                 @Override
                 public void run() {
                     try {
-                        List<Star> list= null;
+                        List<Star> list;
                         start=0;
                         end=20;
                         list=retrofitApiService.getStarList(start,end).execute().body();
