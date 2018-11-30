@@ -79,11 +79,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 .requestEmail()
                 .build();
         googleSignInClient= GoogleSignIn.getClient(this,googleSignInOptions);
-        Retrofit retrofit=new Retrofit.Builder()
-                .baseUrl(ApiService.API_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        retrofitApiService =retrofit.create(ApiService.class);
+        GlobalApplication globalApplication = (GlobalApplication) getApplication();
+        retrofitApiService =globalApplication.getRetrofitApiService();
 
         initView();
     }

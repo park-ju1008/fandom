@@ -39,11 +39,8 @@ public class SelectStarActivity extends AppCompatActivity  implements StarSelAda
         //if 스타 아이디 있다면 바로 넘어가게 나중에 고치기
         itemList=new ArrayList<>();
         initView();
-        Retrofit retrofit=new Retrofit.Builder()
-                .baseUrl(ApiService.API_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        retrofitApiService =retrofit.create(ApiService.class);
+        GlobalApplication globalApplication = (GlobalApplication) getApplication();
+        retrofitApiService =globalApplication.getRetrofitApiService();
 
     }
 

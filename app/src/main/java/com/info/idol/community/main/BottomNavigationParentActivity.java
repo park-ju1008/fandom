@@ -64,7 +64,7 @@ public abstract class BottomNavigationParentActivity extends AppCompatActivity i
                 overridePendingTransition(0,0);
                 finish();
             }
-        },100);
+        },0);
         return true;
     }
 

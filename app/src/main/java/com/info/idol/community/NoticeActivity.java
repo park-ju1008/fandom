@@ -17,16 +17,11 @@ import com.info.idol.community.Class.Board;
 import com.info.idol.community.Class.JsoupParser;
 import com.info.idol.community.Class.Star;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class NoticeActivity extends AppCompatActivity implements NoticeAdapter.OnLoadMoreListener{
     final static int ENT_SM = 1;
@@ -37,7 +32,7 @@ public class NoticeActivity extends AppCompatActivity implements NoticeAdapter.O
     private String notice_url;
     private NoticeAdapter mAdapter;
     boolean endLine=false;
-    private int page=2;
+    private int page=1;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +81,11 @@ public class NoticeActivity extends AppCompatActivity implements NoticeAdapter.O
     @Override
     public void onLoadMore() {
         new AsyncTask<Object,Void,List<Board>>(){
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                page++;
+            }
 
             @Override
             protected List<Board> doInBackground(Object... objects) {
@@ -96,9 +96,7 @@ public class NoticeActivity extends AppCompatActivity implements NoticeAdapter.O
                         elements=JsoupParser.getDocument((String)objects[0]+"?page="+page,"tbody").select("tr");
                         for (Element element:elements) {
                             if(element.select(".board_nodata")==null) {
-                                Log.d("ddd", "boardnull");
                                 endLine = true;
-                                break;
                             }else{
                                 String bno=element.select(".boardDetails").attr("seq").toString();
                                 String title=element.select(".boardDetails").text();
@@ -113,11 +111,32 @@ public class NoticeActivity extends AppCompatActivity implements NoticeAdapter.O
                         }
                         break;
                     case ENT_JYP:
-                        elements=JsoupParser.getDocument(notice_url,".board_list").select("ul > li");
+                        elements=JsoupParser.getDocument((String)objects[0]+"?page="+page,".board_list").select("ul > li");
+                        if(elements.size()<10){
+                            endLine = true;
+                        }
                         for (Element element:elements) {
                             String bno=element.selectFirst("a").attr("href");
                             String title=element.selectFirst("a > span").text();
                             String date=element.child(2).text();
+                            itemList.add(new Board(bno,title,date));
+                        }
+                        break;
+                    case ENT_YG:
+                        elements=JsoupParser.getDocument((String)objects[0]+"&page="+page,".list_cont").select(".list_cont_group");
+                        Log.d("sisi",""+elements.size());
+                        if(elements.size()<10){
+                            endLine=true;
+                        }
+                        for(Element element:elements){
+                            Log.d("ygssw",element.select(".list_txt").toString());
+                            String bno=element.select(".list_txt > a").attr("href");
+                            //javascript:Fn_GetInfo('12037') 여기에서 원하는 숫자 부분만 가져오기위해 잘라냄.
+                            int start=bno.indexOf("'");
+                            int end=bno.indexOf("'",start+1);
+                            bno=bno.substring(start+1,end);
+                            String title=element.select(".list_tit").text();
+                            String date=element.select(".list_date").text();
                             itemList.add(new Board(bno,title,date));
                         }
                         break;
@@ -131,47 +150,13 @@ public class NoticeActivity extends AppCompatActivity implements NoticeAdapter.O
                 mAdapter.dismissLoading();
                 mAdapter.addItemMore(boards);
                 mAdapter.setMore(true);
-                page++;
             }
         }.execute(notice_url,mStar.getEnt());
-//        final ArrayList<Board> itemList=new ArrayList<>();
-//        Thread thread=new Thread(){
-//
-//            @Override
-//            public void run() {
-//                    Element doc=JsoupParser.getDocument(notice_url+"?page="+page,"tbody");
-//                    Elements elements = doc.select("tr");
-//                    Log.d("abs", "schWrap" + elements);
-//                    for (Element element:elements) {
-//                        if(element.select(".board_nodata")==null){
-//                            Log.d("ddd","boardnull");
-//                            endLine=true;
-//                            break;
-//                        }else {
-//                            String bno = element.select(".boardDetails").attr("seq").toString();
-//                            String title = element.select(".boardDetails").text();
-//                            String date;
-//                            if (element.selectFirst(".ft11") != null) {
-//                                date = element.selectFirst(".ft11").text();
-//                            } else {
-//                                date = "";
-//                            }
-//                            Log.d("ddddd", bno + "/" + title + "/" + date);
-//                            itemList.add(new Board(bno, title, date));
-//                        }
-//                    }
-//            }
-//        };
-//        thread.start();
-//        try {
-//            thread.join();
-//            mAdapter.dismissLoading();
-//            mAdapter.addItemMore(itemList);
-//            mAdapter.setMore(true);
-//            page++;
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+    }
+
+    @Override
+    public int getPage() {
+        return page;
     }
 
     private void loadData(){
@@ -185,7 +170,7 @@ public class NoticeActivity extends AppCompatActivity implements NoticeAdapter.O
                     case ENT_SM:
                         elements=JsoupParser.getDocument(notice_url,"tbody").select("tr");
                         for (Element element:elements) {
-                            String bno=element.select(".boardDetails").attr("seq").toString();
+                            String bno=element.select(".boardDetails").attr("seq");
                             String title=element.select(".boardDetails").text();
                             String date;
                         if(element.selectFirst(".ft11")!=null) {
@@ -199,12 +184,26 @@ public class NoticeActivity extends AppCompatActivity implements NoticeAdapter.O
                     case ENT_JYP:
                         elements=JsoupParser.getDocument(notice_url,".board_list").select("ul > li");
                         for (Element element:elements) {
-                        String bno=element.selectFirst("a").attr("href");
-                        String title=element.selectFirst("a > span").text();
+                        String bno=element.select("a").attr("href");
+                        String title=element.select("a > span").text();
                         String date=element.child(2).text();
                         itemList.add(new Board(bno,title,date));
                         }
-                            break;
+                        break;
+                    case ENT_YG:
+                        elements=JsoupParser.getDocument(notice_url,".list_cont").select(".list_cont_group");
+                        for(Element element:elements){
+                            Log.d("ygssw",element.select(".list_txt").toString());
+                            String bno=element.select(".list_txt > a").attr("href");
+                            //javascript:Fn_GetInfo('12037') 여기에서 원하는 숫자 부분만 가져오기위해 잘라냄.
+                            int start=bno.indexOf("'");
+                            int end=bno.indexOf("'",start+1);
+                            bno=bno.substring(start+1,end);
+                            String title=element.select(".list_tit").text();
+                            String date=element.select(".list_date").text();
+                            itemList.add(new Board(bno,title,date));
+                        }
+                        break;
                 }
             }
         };
@@ -227,6 +226,7 @@ public class NoticeActivity extends AppCompatActivity implements NoticeAdapter.O
                 url="http://"+mStar.getDomainkey()+"."+mStar.getDomain()+"/"+mStar.getNotice();
                 break;
             case ENT_YG:
+                url="http://"+mStar.getDomain()+"/"+mStar.getNotice()+"?ARTIDX="+mStar.getBoardkey()+"&n2PageSize=10";
                 break;
             case ENT_SEV:
                 break;

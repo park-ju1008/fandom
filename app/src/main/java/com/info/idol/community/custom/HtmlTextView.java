@@ -15,6 +15,7 @@ import android.text.Html;
 import android.text.Spanned;
 import android.util.AttributeSet;
 import android.support.v7.widget.AppCompatTextView;
+import android.util.DisplayMetrics;
 
 import com.info.idol.community.R;
 
@@ -25,59 +26,68 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class HtmlTextView extends AppCompatTextView implements Html.ImageGetter {
+    private Context mContext;
+    private int entType;
+
     public HtmlTextView(Context context) {
         super(context);
+        mContext=context;
     }
 
     public HtmlTextView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        mContext=context;
     }
 
     /**
-    * @param source HTML 형식의 문자열
-    */
+     * @param source HTML 형식의 문자열
+     */
 
-    public void setHtmlText(String source){
+    public void setHtmlText(String source, int ent) {
+        entType = ent;
         Spanned spanned;
 //        Html.fromHtml API 24 부터 달라짐.
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.N){
-            spanned=Html.fromHtml(source,Html.FROM_HTML_MODE_COMPACT,this,null);
-        }else{
-            spanned=Html.fromHtml(source,this,null);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            spanned = Html.fromHtml(source, Html.FROM_HTML_MODE_COMPACT, this, null);
+        } else {
+            spanned = Html.fromHtml(source, this, null);
         }
         this.setText(spanned);
     }
 
     /**
      * Html.ImageGetter
+     *
      * @param source HTML 파서가 <img> 태그를 만났을때 <img> 태그의 주소가 넘어온다.
      * @return 먼저 LevelListDrawable을 넘겨 이미지가 들어갈 자리를 만들고 AsyncTask를 이용해 이미지 다운로드후 붙여줌
      */
     @Override
     public Drawable getDrawable(String source) {
-        LevelListDrawable tempHolder=new LevelListDrawable();
-        Drawable empty= ContextCompat.getDrawable(getContext(), R.drawable.img_not_found);
-        tempHolder.addLevel(0,0,empty);
-        tempHolder.setBounds(0,0,empty.getIntrinsicWidth(),empty.getIntrinsicHeight());
-        new LoadImage().execute(source,tempHolder);
+        if (entType == 3) {
+            source = "http://ygfamily.co.kr" + source;
+        }
+        LevelListDrawable tempHolder = new LevelListDrawable();
+        Drawable empty = ContextCompat.getDrawable(getContext(), R.drawable.img_not_found);
+        tempHolder.addLevel(0, 0, empty);
+        tempHolder.setBounds(0, 0, empty.getIntrinsicWidth(), empty.getIntrinsicHeight());
+        new LoadImage().execute(source, tempHolder);
 
         return tempHolder;
     }
 
 
-
-    class LoadImage extends AsyncTask<Object,Void,Bitmap>{
+    class LoadImage extends AsyncTask<Object, Void, Bitmap> {
         private LevelListDrawable mDrawable;
 
         @Override
         protected Bitmap doInBackground(Object... objects) {
-            String source=(String)objects[0];
-            mDrawable=(LevelListDrawable)objects[1];
+            String source = (String) objects[0];
+            mDrawable = (LevelListDrawable) objects[1];
 
             try {
-                InputStream is=new URL(source).openStream();
+                InputStream is = new URL(source).openStream();
                 return BitmapFactory.decodeStream(is);
-            } catch(FileNotFoundException e) {
+            } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (MalformedURLException e) {
                 e.printStackTrace();
@@ -89,10 +99,11 @@ public class HtmlTextView extends AppCompatTextView implements Html.ImageGetter 
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            if(bitmap!=null){
-                BitmapDrawable image=new BitmapDrawable(getContext().getResources(),bitmap);
-                mDrawable.addLevel(1,1,image);
-                mDrawable.setBounds(0,0,bitmap.getWidth(),bitmap.getHeight());
+            if (bitmap != null) {
+                BitmapDrawable image = new BitmapDrawable(getContext().getResources(), bitmap);
+                mDrawable.addLevel(1, 1, image);
+                DisplayMetrics dm = mContext.getResources().getDisplayMetrics();
+                mDrawable.setBounds(0, 0, dm.widthPixels, bitmap.getHeight());
                 mDrawable.setLevel(1);
                 // 이미지 다운로드 완료 후, invalidate 의 개념으로, 다시한번 텍스트를 설정해준것이다. 더 좋은방법이 있을법도 하다
                 CharSequence t = getText();

@@ -54,6 +54,7 @@ public class NoticeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     intent.putExtra("bno",itemList.get(position).getBno());
                     intent.putExtra("title",itemList.get(position).getTitle());
                     intent.putExtra("date",itemList.get(position).getDate());
+                    intent.putExtra("page",mOnLoadMoreListener.getPage());
                     view.getContext().startActivity(intent);
                 }
             });
@@ -118,6 +119,7 @@ public class NoticeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     public interface OnLoadMoreListener{
         void onLoadMore();
+        int getPage();
     }
 
     //뷰홀더 클래스

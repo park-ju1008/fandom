@@ -15,7 +15,6 @@ public class JsoupParser {
         Map<String, String> input = new HashMap<>();
         input.put("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7");
         Document doc = null;
-        Log.d("parurl",url);
         try {
             doc = Jsoup.connect(url)
                     .headers(input)
@@ -23,7 +22,6 @@ public class JsoupParser {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Log.d("pardoc",doc.toString());
         return doc.selectFirst(selecter);
     }
 

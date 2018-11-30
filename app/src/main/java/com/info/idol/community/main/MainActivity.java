@@ -12,7 +12,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.LinearLayout.LayoutParams;
 
-import com.google.android.gms.ads.MobileAds;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.info.idol.community.Class.Event;
@@ -20,20 +19,15 @@ import com.info.idol.community.Class.JsoupParser;
 import com.info.idol.community.Class.Star;
 import com.info.idol.community.GlobalApplication;
 import com.info.idol.community.R;
-import com.info.idol.community.custom.LoginButton;
 import com.info.idol.community.retrofit.ApiService;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -73,17 +67,13 @@ public class MainActivity extends BottomNavigationParentActivity {
         if(starId==null){
             mStar = loadInfo();
         }
-        Log.d("aaff",""+mStar);
         if (mStar == null) {
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(ApiService.API_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-            retrofitApiService = retrofit.create(ApiService.class);
+            GlobalApplication globalApplication = (GlobalApplication) getApplication();
+            retrofitApiService =globalApplication.getRetrofitApiService();
             // 스타의 고유 아이디 값을 받아와서 서버로 부터스타의 정보를 가져온다.
 
             final String starID = intent.getStringExtra("starId");
-            Log.d("sss","start"+starID);
+
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -110,8 +100,8 @@ public class MainActivity extends BottomNavigationParentActivity {
         today_text.setText(month + "월 " + day + "일");
         //스케줄 주소를 만들어냄
         schedule_url=getScheduleUrl(mStar.getEnt());
-        Log.v("schedule_url",schedule_url);
         //만들어진 스케줄 주소로 스케줄을 가져온다.
+
         Description description=new Description();
         description.execute(schedule_url,mStar.getEnt(),day);
     }
@@ -176,6 +166,7 @@ public class MainActivity extends BottomNavigationParentActivity {
     private class Description extends AsyncTask<Object, Void, List<Event>> {
         @Override
         protected void onPreExecute() {
+            Log.e("속도1","onstart");
             super.onPreExecute();
             LayoutInflater inflater=(LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE);
             LinearLayout root=(LinearLayout)findViewById(R.id.layout_schedule);
@@ -251,16 +242,13 @@ public class MainActivity extends BottomNavigationParentActivity {
         @Override
         protected void onPostExecute(List<Event> events) {
             super.onPostExecute(events);
-            Log.d("eee", "" + events.size());
             LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
             LinearLayout root = (LinearLayout) findViewById(R.id.layout_schedule);
             root.removeViewAt(1);
             if (events.size() != 0) {
                 for (Event event : events) {
-                    Log.d("eeea", "dd" + event.getTime());
                     //뷰를 생성해서 붙이고 생성된 뷰에서 textview를 찾아 값을 입력함.
-                    View view = inflater.inflate(R.layout.item_schedule,null);
-                    Log.d("eee",""+view);
+                    View view = inflater.inflate(R.layout.item_mainschedule,null);
                     TextView text_type = (TextView) view.findViewById(R.id.text_type);
                     TextView text_title = (TextView) view.findViewById(R.id.text_title);
                     TextView text_time = (TextView) view.findViewById(R.id.text_time);
@@ -270,7 +258,6 @@ public class MainActivity extends BottomNavigationParentActivity {
                     root.addView(view);
                 }
             } else {
-                Log.d("eeaa","tq");
                 TextView text_empty = new TextView(root.getContext());
                 text_empty.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
                 text_empty.setText("오늘은 스케줄이 없습니다.");
@@ -278,6 +265,8 @@ public class MainActivity extends BottomNavigationParentActivity {
 
                 root.addView(text_empty);
             }
+            Log.e("속도2","onstart");
+
         }
     }
 }

@@ -38,11 +38,8 @@ public class JoinActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join);
         initView();
-        Retrofit retrofit=new Retrofit.Builder()
-                .baseUrl(ApiService.API_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        retrofitApiService =retrofit.create(ApiService.class);
+        GlobalApplication globalApplication = (GlobalApplication) getApplication();
+        retrofitApiService =globalApplication.getRetrofitApiService();
     }
 
 

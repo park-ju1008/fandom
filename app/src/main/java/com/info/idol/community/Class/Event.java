@@ -28,4 +28,20 @@ public class Event {
     public String getTime() {
         return time;
     }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
 }
