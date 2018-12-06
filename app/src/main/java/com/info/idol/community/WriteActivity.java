@@ -33,26 +33,15 @@ import com.gun0912.tedpermission.TedPermission;
 import com.gun0912.tedpicker.Config;
 import com.gun0912.tedpicker.ImagePickerActivity;
 import com.info.idol.community.Adapter.RecyclerImageAdapter;
+import com.info.idol.community.Class.Board;
 import com.info.idol.community.Class.FileHandler;
 import com.info.idol.community.Class.MyResponse;
-import com.info.idol.community.Class.Schedule;
-import com.info.idol.community.main.ScheduleActivity;
 import com.info.idol.community.retrofit.ApiService;
 
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -138,17 +127,19 @@ public class WriteActivity extends BaseActivity {
                 return true;
             case R.id.action_send:
                 String eventTime=""+text_day.getText()+" "+text_time.getText();
-                final Schedule schedule=new Schedule(null,null,eventTime,text_main.getText().toString());
+                final Board schedule=new Board(eventTime,text_main.getText().toString());
                 SharedPreferences pref=getSharedPreferences("user",MODE_PRIVATE);
                 String accessToken=pref.getString("AccessToken","");
-
-                FileHandler fileHandler=new FileHandler(this,mApiService,sid,accessToken);
+                Log.e("TESTACC",accessToken);
+                FileHandler fileHandler=new FileHandler(this,mApiService,sid,"7",accessToken);
                 fileHandler.SetCallback(new Callback<MyResponse>() {
                     @Override
                     public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
                         if(response.isSuccessful()){
                             schedule.setBno(response.body().bno);
+                            schedule.setUser(response.body().user);
                             schedule.setImage(response.body().image);
+                            schedule.setDate(response.body().date);
                             //스케줄 완성 했으니 스케줄 란으로 넘겨서넣기
                             Intent intent=new Intent();
                             intent.putExtra("schedule",schedule);

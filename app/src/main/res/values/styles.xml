@@ -9,4 +9,8 @@
         <item name="colorControlHighlight">#fd4381</item>
     </style>
 
+    <style name="AlertDialogCustom" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorPrimary">@color/ripple</item>
+        <item name="colorAccent">@color/cursorColor</item>
+    </style>
 </resources>

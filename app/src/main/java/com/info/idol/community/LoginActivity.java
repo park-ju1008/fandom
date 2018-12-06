@@ -22,6 +22,7 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.info.idol.community.Class.FacebookloginCallback;
 import com.info.idol.community.Class.KakaologinCallback;
+import com.info.idol.community.Class.User;
 import com.info.idol.community.retrofit.ApiService;
 import com.kakao.auth.Session;
 import com.kakao.usermgmt.LoginButton;
@@ -32,6 +33,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -55,11 +59,24 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        retrofitApiService =GlobalApplication.getGlobalApplicationContext().getRetrofitApiService();
 
         //쉐어드로 토큰 있다면 바로 넘어가게하기
         SharedPreferences pref=getSharedPreferences("user",MODE_PRIVATE);
-        String s=pref.getString("AccessToken","");
-        if(!s.isEmpty()){
+        accessToken=pref.getString("AccessToken","");
+        if(!accessToken.isEmpty()){
+            retrofitApiService.getUserInfo(accessToken).enqueue(new Callback<User>() {
+                @Override
+                public void onResponse(Call<User> call, Response<User> response) {
+                    Log.d("USERTEST",response.body().toString());
+                    GlobalApplication.getGlobalApplicationContext().setUser(response.body());
+                }
+
+                @Override
+                public void onFailure(Call<User> call, Throwable t) {
+
+                }
+            });
             Intent intent=new Intent(this,SelectStarActivity.class);
             startActivity(intent);
             finish();
@@ -79,8 +96,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 .requestEmail()
                 .build();
         googleSignInClient= GoogleSignIn.getClient(this,googleSignInOptions);
-        GlobalApplication globalApplication = (GlobalApplication) getApplication();
-        retrofitApiService =globalApplication.getRetrofitApiService();
 
         initView();
     }
@@ -126,6 +141,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             SharedPreferences.Editor editor= pref.edit();
                             editor.putString("AccessToken",accessToken);
                             editor.commit();
+                            GlobalApplication.getGlobalApplicationContext().setUser(retrofitApiService.getUserInfo(accessToken).execute().body());
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -190,6 +206,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             SharedPreferences.Editor editor= pref.edit();
                             editor.putString("AccessToken",accessToken);
                             editor.commit();
+                            GlobalApplication.getGlobalApplicationContext().setUser(retrofitApiService.getUserInfo(accessToken).execute().body());
                             //좋아하는 연예인 설정 화면으로 넘어감.
                             Intent intent=new Intent(view.getContext(),SelectStarActivity.class);
 
@@ -199,6 +216,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             Toast.makeText(this,"아이디/비번이 일치하지않습니다.",Toast.LENGTH_SHORT).show();
                         }
                     } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }

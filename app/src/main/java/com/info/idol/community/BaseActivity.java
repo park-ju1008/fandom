@@ -14,5 +14,7 @@ public class BaseActivity extends AppCompatActivity {
     public void progressOFF() {
         GlobalApplication.getGlobalApplicationContext().progressOFF();
     }
+
+
 }
 

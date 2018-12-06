@@ -12,6 +12,7 @@ import java.util.Map;
 
 public class JsoupParser {
     public static Element getDocument(String url, String selecter){
+        Log.e("JSOUPPARSER",url+"///"+selecter);
         Map<String, String> input = new HashMap<>();
         input.put("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7");
         Document doc = null;

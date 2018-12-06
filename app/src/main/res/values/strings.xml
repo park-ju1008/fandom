@@ -10,4 +10,5 @@
     <string name="selection_schedule">스케줄</string>
     <string name="selection_talk">톡톡</string>
     <string name="selection_bot">가상톡</string>
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
 </resources>

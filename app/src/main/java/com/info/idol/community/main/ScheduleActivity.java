@@ -14,7 +14,7 @@ import android.widget.TextView;
 import com.github.sundeepk.compactcalendarview.CompactCalendarView;
 import com.github.sundeepk.compactcalendarview.domain.Event;
 import com.info.idol.community.Adapter.ScheduleAdapter;
-import com.info.idol.community.Class.Schedule;
+import com.info.idol.community.Class.Board;
 import com.info.idol.community.Class.Star;
 import com.info.idol.community.GlobalApplication;
 import com.info.idol.community.R;
@@ -32,18 +32,18 @@ import java.util.Locale;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ScheduleActivity extends BottomNavigationParentActivity {
-    final static int WRITE_REQUEST=1;
+    public final static int WRITE_REQUEST=1;
+    public final static int COMMENT_COUNT_REQUEST=2;
     private TextView curMonth;
     private Star mStar;
     private CompactCalendarView compactCalendarView;
     private ApiService retrofitApiService;
+    private RecyclerView recyclerView;
     private ScheduleAdapter mAdapter;
     private Calendar currentCalender  = Calendar.getInstance();
-    private SimpleDateFormat dateFormatForDisplaying = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss",Locale.getDefault());
+    private SimpleDateFormat dateFormatForDisplaying = new SimpleDateFormat("yyyy-MM-dd hh:mm",Locale.getDefault());
     private SimpleDateFormat dateFormatForMonth = new SimpleDateFormat(" yyyy - MMM", Locale.getDefault());
 
     @Override
@@ -70,7 +70,6 @@ public class ScheduleActivity extends BottomNavigationParentActivity {
     @Override
     protected void onStart() {
         super.onStart();
-//오늘에 해당하는 날짜의 스케줄을 가져와서 리사이클러뷰 어댑터로 전달후 어댑터 셋팅.
 
     }
 
@@ -81,7 +80,7 @@ public class ScheduleActivity extends BottomNavigationParentActivity {
         ImageButton write_btn=(ImageButton)findViewById(R.id.write_Button);
         compactCalendarView = (CompactCalendarView) findViewById(R.id.compactcalendar_view);
         //리사이클러뷰 설정
-        RecyclerView recyclerView=findViewById(R.id.recyclerView);
+        recyclerView=findViewById(R.id.recyclerView);
         LinearLayoutManager layoutManager=new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         mAdapter=new ScheduleAdapter(this);
@@ -116,8 +115,9 @@ public class ScheduleActivity extends BottomNavigationParentActivity {
                 if(eventList.isEmpty()){
                     Log.e("TEST","없으니가져옴");
                     loadEvents(year,month);
+                }else{
+                    mAdapter.addSchedules(loadDayEvents(firstDayOfNewMonth));
                 }
-                mAdapter.addSchedules(loadDayEvents(firstDayOfNewMonth));
             }
         });
 
@@ -141,26 +141,33 @@ public class ScheduleActivity extends BottomNavigationParentActivity {
                 startActivityForResult(intent,WRITE_REQUEST);
             }
         });
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode==WRITE_REQUEST&&resultCode==RESULT_OK){
-            Schedule schedule = (Schedule) getIntent().getParcelableExtra("schedule");
-            mAdapter.addSchedule(schedule);
-
+            Board loadSchedule = (Board) data.getParcelableExtra("schedule");
+            Log.e("TEST","로드"+loadSchedule.getBody());
+            compactCalendarView.addEvent(new Event(Color.WHITE,currentCalender.getTimeInMillis(),loadSchedule));
+            mAdapter.addSchedule(loadSchedule);
+            recyclerView.smoothScrollToPosition(mAdapter.getItemCount()-1);
+            Log.e("TEST",loadSchedule.toString());
         }
     }
 
     private void loadEvents(int year, int month){
-        retrofitApiService.getSchedule(year,month,mStar.getId()).enqueue(new Callback<List<Schedule>>() {
+        Log.e("TESTLOAD",""+year+month+mStar.getId());
+        retrofitApiService.getSchedule(year,month,mStar.getId()).enqueue(new Callback<List<Board>>() {
             @Override
-            public void onResponse(Call<List<Schedule>> call, Response<List<Schedule>> response) {
+            public void onResponse(Call<List<Board>> call, Response<List<Board>> response) {
                 if(response.body()!=null){
                     ArrayList<Event> events=new ArrayList<>();
-                    for (Schedule schedule:response.body()) {
+                    //서버로부터 가져온 값 bno,body,eventtime,image,writer
+                    for (Board schedule:response.body()) {
                         try {
-                            Date date=dateFormatForDisplaying.parse(schedule.getEventtime());
+                            //이벤트 시간을 포멧팅
+                            Date date=dateFormatForDisplaying.parse(schedule.getTitle());
                             events.add(new Event(Color.WHITE,date.getTime(),schedule));
                         } catch (ParseException e) {
                             e.printStackTrace();
@@ -173,19 +180,19 @@ public class ScheduleActivity extends BottomNavigationParentActivity {
             }
 
             @Override
-            public void onFailure(Call<List<Schedule>> call, Throwable t) {
+            public void onFailure(Call<List<Board>> call, Throwable t) {
                 Log.e("error@",t.toString());
             }
         });
     }
 
-    private List<Schedule> loadDayEvents(Date date){
+    private List<Board> loadDayEvents(Date date){
         List<Event> today=compactCalendarView.getEvents(date);
-        ArrayList<Schedule> schedules=new ArrayList<>();
+        ArrayList<Board> schedules=new ArrayList<>();
         for (Event e:today) {
-            Schedule a=(Schedule)e.getData();
-            Log.e("TEST","for문"+a.getWrite());
-            schedules.add((Schedule)e.getData());
+            Board a=(Board)e.getData();
+            Log.e("TEST","for문"+a.getBody());
+            schedules.add((Board)e.getData());
         }
         return schedules;
     }

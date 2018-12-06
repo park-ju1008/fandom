@@ -67,35 +67,6 @@ public class FacebookloginCallback implements FacebookCallback<LoginResult> {
                                     .addConverterFactory(GsonConverterFactory.create())
                                     .build();
                             final ApiService retrofitApiService =retrofit.create(ApiService.class);
-//                            HashMap<String, Object> input = new HashMap<>();
-//                            input.put("userId", object.getString("id"));
-//                            input.put("userNick", object.getString("name"));
-//                            input.put("route","2");
-//                            retrofitApiService.postUserInfo(input).enqueue(new Callback<String>() {
-//                                @Override
-//                                public void onResponse(Call<String> call, Response<String> response) {
-//                                    if(response.isSuccessful()){
-//                                        //가입이 완료 되면 서버로 부터 AccessToken을 발행 시켜서 로컬에 저장한다.
-//                                        String token=response.body();
-//                                        Log.d("to", "onResponse: "+token);
-//                                        SharedPreferences pref=mContext.getSharedPreferences("user",Activity.MODE_PRIVATE);
-//                                        SharedPreferences.Editor editor= pref.edit();
-//                                        editor.putString("AccessToken",token);
-//                                        editor.commit();
-//
-//
-//                                    }
-//                                }
-//
-//                                @Override
-//                                public void onFailure(Call<String> call, Throwable t) {
-//
-//                                }
-//                            });
-//                            //좋아하는 연예인 설정 화면으로 넘어감.
-//                            Intent intent=new Intent(mContext,AddInfoActivity.class);
-//                            ((Activity)mContext).startActivity(intent);
-//                            ((Activity)mContext).finish();
 
                             Thread netThread = new Thread() {
                                 @Override

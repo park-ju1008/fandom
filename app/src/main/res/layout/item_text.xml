@@ -2,17 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingEnd="20dp"
-    android:paddingStart="20dp">
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
+    android:background="@drawable/bottomline"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/name_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/clickeffect"
-        android:paddingBottom="15dp"
+        android:background="@drawable/ripple_effect"
         android:paddingTop="15dp"
+        android:paddingBottom="15dp"
         android:text="ttt"
         android:textSize="14sp" />
 

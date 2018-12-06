@@ -1,7 +1,8 @@
 package com.info.idol.community.Adapter;
 
+import android.app.Activity;
 import android.content.Context;
-import android.graphics.BitmapFactory;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -12,8 +13,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.info.idol.community.Class.Schedule;
+import com.info.idol.community.BoardDetailActivity;
+import com.info.idol.community.Class.Board;
 import com.info.idol.community.R;
+import com.info.idol.community.main.ScheduleActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,9 +30,9 @@ import java.util.Locale;
 
 public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHolder> {
     private Context context;
-    private ArrayList<Schedule> mSchedules;
+    private ArrayList<Board> mSchedules;
     private SimpleDateFormat outputdateFormat = new SimpleDateFormat("HH : mm", Locale.getDefault());
-    private SimpleDateFormat inputdateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private SimpleDateFormat inputdateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
     public ScheduleAdapter(Context context) {
         this.context=context;
@@ -45,13 +48,13 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ScheduleAdapter.ViewHolder holder, int position) {
-        Schedule schedule = mSchedules.get(position);
-        Log.d("TEST",schedule.getEventtime());
+        Board schedule = mSchedules.get(position);
+        Log.d("TEST","/"+position);
         try {
-            Date date=inputdateFormat.parse(schedule.getEventtime());
+            Date date=inputdateFormat.parse(schedule.getTitle());
             holder.text_time.setText(outputdateFormat.format(date));
-            holder.text_title.setText(schedule.getWrite());
-            holder.text_reply.setText("0");
+            holder.text_body.setText(schedule.getBody());
+            holder.text_reply.setText(""+schedule.getComment());
             if(!schedule.getImage().isEmpty()){
                 JSONArray jarray = new JSONArray(schedule.getImage());
                 Glide.with(context).load("http://35.237.204.193/uploads/"+jarray.get(0).toString()).centerCrop().into(holder.img_main);
@@ -71,33 +74,42 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
     public int getItemCount() {
         return mSchedules.size();
     }
-    public void addSchedules(List<Schedule> schedules){
+    public void addSchedules(List<Board> schedules){
         mSchedules.clear();
         mSchedules.addAll(schedules);
         notifyDataSetChanged();
     }
 
-    public void addSchedule(Schedule schedule){
+    public void addSchedule(Board schedule){
+
         mSchedules.add(schedule);
+        Log.e("TESTadd",schedule.toString());
         notifyItemInserted(mSchedules.size()-1);
+        Log.e("TEST","/////"+(mSchedules.size()-1));
         //체인지 알려줘야함
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView text_time, text_title, text_reply;
+        TextView text_time, text_body, text_reply;
         ImageView img_main;
 
         public ViewHolder(View itemView) {
             super(itemView);
             text_time = (TextView) itemView.findViewById(R.id.text_time);
-            text_title = (TextView) itemView.findViewById(R.id.text_title);
+            text_body = (TextView) itemView.findViewById(R.id.text_body);
             text_reply = (TextView) itemView.findViewById(R.id.text_reply);
             img_main=(ImageView)itemView.findViewById(R.id.Iv_schedule_image);
+            itemView.setOnClickListener(this);
         }
+
 
         @Override
         public void onClick(View view) {
-            Log.e("TEST", mSchedules.get(getAdapterPosition()).getWrite());
+            Board schedule=mSchedules.get(getAdapterPosition());
+            Log.e("TESTCLICK",schedule.toString());
+            Intent intent=new Intent(context,BoardDetailActivity.class);
+            intent.putExtra("schedule",schedule);
+            ((Activity)context).startActivityForResult(intent,ScheduleActivity.COMMENT_COUNT_REQUEST);
         }
     }
 

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.info.idol.community.GlobalApplication;
 import com.info.idol.community.SelectStarActivity;
 import com.info.idol.community.retrofit.ApiService;
 import com.kakao.auth.ISessionCallback;
@@ -68,6 +69,7 @@ public class KakaologinCallback implements ISessionCallback {
                             SharedPreferences.Editor editor= pref.edit();
                             editor.putString("AccessToken",accessToken);
                             editor.commit();
+                            GlobalApplication.getGlobalApplicationContext().setUser(retrofitApiService.getUserInfo(accessToken).execute().body());
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

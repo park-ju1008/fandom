@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import com.info.idol.community.retrofit.ApiService;
@@ -21,27 +20,25 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
-import okhttp3.Request;
 import okhttp3.RequestBody;
-import retrofit2.Call;
 import retrofit2.Callback;
-import retrofit2.Response;
 
 
-public class FileHandler{
+public class FileHandler {
     private Context mContext;
     private ApiService mApiService;
-    private String sid;
+    private String sid;  //스타 아이디
+    private String bcdoe; //게시판 타입
     private String accessToken;
     private Callback<MyResponse> mCallback;
 
-    public FileHandler(Context context,ApiService apiService, String sid,String accessToken) {
-        mContext=context;
+    public FileHandler(Context context, ApiService apiService, String sid, String bcode, String accessToken) {
+        mContext = context;
         mApiService = apiService;
-        this.sid=sid;
+        this.sid = sid;
+        this.bcdoe = bcode;
         this.accessToken = accessToken;
     }
 
@@ -50,46 +47,45 @@ public class FileHandler{
     }
 
 
-    public void upload(Object object,  Uri... uris) {
+    public void upload(Object object, Uri... uris) {
 
-        JSONObject json=null;
-        if (object instanceof Schedule) {
-            Map<String, String> data = new HashMap<String, String>();
-            Schedule schedule = (Schedule) object;
-            data.put("type", "schedule");
-            data.put("eventtime", schedule.getEventtime());
-            data.put("write", schedule.getWrite());
-            data.put("accesscode", accessToken);
-            json=new JSONObject(data);
-            Log.e("TEST",json.toString());
-        }
-        RequestBody item=RequestBody.create(MediaType.parse("text/plain"),json.toString());
+        JSONObject json = null;
+        Map<String, String> data = new HashMap<String, String>();
+        Board schedule = (Board) object;
+        data.put("boardtype", bcdoe);
+        data.put("title", schedule.getTitle());
+        data.put("body", schedule.getBody());
+        data.put("sid", sid);
+        data.put("accesscode", accessToken);
+        json = new JSONObject(data);
+        Log.e("TEST", json.toString());
+        RequestBody item = RequestBody.create(MediaType.parse("text/plain"), json.toString());
 
-        ArrayList<MultipartBody.Part> parts=new ArrayList<>();
+        ArrayList<MultipartBody.Part> parts = new ArrayList<>();
         //이미지 수만큼할당
         for (int index = 0; index < uris.length; index++) {
             Log.d("upload", "requestUpload:  image " + index + "  " + uris[index]);
 //            File file = new File("" + uris[index]);
-            File file=resizingImage(uris[index]);
-            RequestBody requestFile=RequestBody.create(MediaType.parse("image/*"),file);
-            parts.add(MultipartBody.Part.createFormData("file[]",file.getName(),requestFile));
+            File file = resizingImage(uris[index]);
+            RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file);
+            parts.add(MultipartBody.Part.createFormData("file[]", file.getName(), requestFile));
         }
 
-            mApiService.uploadImage(item,parts).enqueue(mCallback);
+        mApiService.uploadImage(item, parts).enqueue(mCallback);
 
     }
 
 
-    private File resizingImage(Uri uri){
-        File temp=new File(uri.toString());
+    private File resizingImage(Uri uri) {
+        File temp = new File(uri.toString());
         //비트 맵 데이터를 쓸수있는 파일을 만든다.
-        Log.e("TEST","파일이름"+temp.getName());
-        File file=new File(mContext.getCacheDir(),temp.getName());
+        Log.e("TEST", "파일이름" + temp.getName());
+        File file = new File(mContext.getCacheDir(), temp.getName());
         try {
             file.createNewFile();
             BitmapFactory.Options options = new BitmapFactory.Options();
             //비트맵을 byte array로 변환
-            Bitmap bitmap=rotateImage(BitmapFactory.decodeFile(uri.toString(),options),uri);
+            Bitmap bitmap = rotateImage(BitmapFactory.decodeFile(uri.toString(), options), uri);
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 70 /*ignored for PNG*/, bos);
@@ -108,12 +104,12 @@ public class FileHandler{
 
     private Bitmap rotateImage(Bitmap bitmap, Uri uri) {
         ExifInterface exif = null;
-        Bitmap result=null;
+        Bitmap result = null;
         try {
             exif = new ExifInterface(uri.toString());
             int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
             int exifDegree = exifOrientationToDegrees(exifOrientation);
-            result=rotate(bitmap,exifDegree);
+            result = rotate(bitmap, exifDegree);
         } catch (IOException e) {
             e.printStackTrace();
         }

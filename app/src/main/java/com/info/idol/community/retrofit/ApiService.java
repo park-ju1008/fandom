@@ -1,8 +1,10 @@
 package com.info.idol.community.retrofit;
 
+import com.info.idol.community.Class.Board;
+import com.info.idol.community.Class.Comment;
 import com.info.idol.community.Class.MyResponse;
-import com.info.idol.community.Class.Schedule;
 import com.info.idol.community.Class.Star;
+import com.info.idol.community.Class.User;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +12,7 @@ import java.util.List;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Call;
-import retrofit2.http.Body;
+import retrofit2.http.Field;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -37,6 +39,9 @@ public interface ApiService {
     @POST("join.php")
     Call<String> postUserInfo(@FieldMap HashMap<String, Object> param);
 
+    @GET("getuser.php")
+    Call<User> getUserInfo(@Query("access_code") String access_token);
+
     @GET("UserValidate.php")
     Call<Boolean> getValidateId(@Query("userId") String userId);
 
@@ -54,9 +59,20 @@ public interface ApiService {
     Call<Star> getStarInfo(@Query("starId") String id);
 
     @GET("schedule.php")
-    Call<List<Schedule>> getSchedule(@Query("year") int year, @Query("month") int month, @Query("sno") String sno);
+    Call<List<Board>> getSchedule(@Query("year") int year, @Query("month") int month, @Query("sno") String sno);
 
     @Multipart
     @POST("write.php")
     Call<MyResponse> uploadImage(@Part("item") RequestBody data, @Part List<MultipartBody.Part> files);
+
+    @GET("commentLoad.php")
+    Call<List<Comment>>getCommentList(@Query("bno") String bno);
+
+    @FormUrlEncoded
+    @POST("comment_insert.php")
+    Call<Comment> postComment(@FieldMap HashMap<String, Object> param);
+
+    @FormUrlEncoded
+    @POST("comment_delete.php")
+    Call<Boolean>postDeleteComment(@Field("cno") String cno);
 }

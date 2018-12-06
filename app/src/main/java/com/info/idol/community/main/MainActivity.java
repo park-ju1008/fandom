@@ -209,7 +209,7 @@ public class MainActivity extends BottomNavigationParentActivity {
                     }
                     break;
                 case ENT_YG:
-                    elements=JsoupParser.getDocument((String)objects[0],"#calen_"+objects[2]).select("li");
+                    elements=JsoupParser.getDocument((String)objects[0],"#calen_"+(((int)objects[2]<10) ? "0"+objects[2] :objects[2])).select("li");
                     for (Element event:elements) {
                         Elements info=event.getElementsByTag("span");
                         String type=info.get(0).text();

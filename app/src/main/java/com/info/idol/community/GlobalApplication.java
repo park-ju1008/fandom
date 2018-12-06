@@ -13,6 +13,7 @@ import com.facebook.stetho.Stetho;
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.info.idol.community.Adapter.KakaoSDKAdapter;
 import com.info.idol.community.Class.Star;
+import com.info.idol.community.Class.User;
 import com.info.idol.community.retrofit.ApiService;
 import com.kakao.auth.KakaoSDK;
 
@@ -26,6 +27,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class GlobalApplication extends Application {
     private static GlobalApplication instance;
     private Star mStar;
+    private User mUser;
     private ApiService retrofitApiService;
     AppCompatDialog progressDialog;
 
@@ -64,6 +66,14 @@ public class GlobalApplication extends Application {
     public void onTerminate() {
         super.onTerminate();
         instance = null;
+    }
+
+    public User getUser() {
+        return mUser;
+    }
+
+    public void setUser(User user) {
+        mUser = user;
     }
 
     public Star getStar() {

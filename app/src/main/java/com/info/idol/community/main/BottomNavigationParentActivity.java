@@ -86,7 +86,7 @@ public abstract class BottomNavigationParentActivity extends AppCompatActivity i
             MenuItem item = menu.getItem(i);
             boolean shouldBeChecked = item.getItemId() == itemId;
             if (shouldBeChecked) {
-                //이 메소드가 호출시 메뉴아이템에 selector(우린 item_back_selector.xml)효과가 나타남
+                //이 메소드가 호출시 메뉴아이템에 selector(우린 mainbutton.xml)효과가 나타남
                 item.setChecked(true);
                 break;
             }

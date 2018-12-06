@@ -28,14 +28,15 @@
             android:textSize="14sp" />
 
         <TextView
-            android:id="@+id/text_title"
+            android:id="@+id/text_body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:drawableLeft="@drawable/ic_event"
             android:drawablePadding="@dimen/com_facebook_likeview_internal_padding"
             android:text="TextView"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:singleLine="true"/>
 
         <TextView
             android:id="@+id/text_reply"
@@ -52,14 +53,14 @@
         android:id="@+id/Iv_schedule_image"
         android:layout_width="80dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:padding="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/linearLayout3"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@android:color/holo_blue_bright" />
+        app:srcCompat="@color/background_color" />
 </android.support.constraint.ConstraintLayout>
