@@ -10,5 +10,6 @@
     <color name="lightRed">#ff6f6f</color>
     <color name="cursorColor">#000</color>
     <color name="ripple">#dadada</color>
+    <color name="selectButtonColor">#c78c3e</color>
 
 </resources>

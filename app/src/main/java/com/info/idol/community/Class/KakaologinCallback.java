@@ -56,6 +56,7 @@ public class KakaologinCallback implements ISessionCallback {
                         .build();
                 final ApiService retrofitApiService =retrofit.create(ApiService.class);
 
+                //FIXME ///////////////////////////////////////////////////////
                 Thread netThread = new Thread() {
                     @Override
                     public void run() {
@@ -64,10 +65,13 @@ public class KakaologinCallback implements ISessionCallback {
                             input.put("userId", result.getId());
                             input.put("userNick", result.getNickname());
                             input.put("route","3");
-                            String accessToken = retrofitApiService.postUserInfo(input).execute().body();
                             SharedPreferences pref=mContext.getSharedPreferences("user",Activity.MODE_PRIVATE);
+                            String accessToken=pref.getString("AccessToken","");
+                            input.put("accessToken",accessToken);
+                            retrofitApiService.postUserInfo(input).execute().body();
+//                            SharedPreferences pref=mContext.getSharedPreferences("user",Activity.MODE_PRIVATE);
                             SharedPreferences.Editor editor= pref.edit();
-                            editor.putString("AccessToken",accessToken);
+                            editor.putBoolean("autoLogin",false);
                             editor.commit();
                             GlobalApplication.getGlobalApplicationContext().setUser(retrofitApiService.getUserInfo(accessToken).execute().body());
                         } catch (IOException e) {

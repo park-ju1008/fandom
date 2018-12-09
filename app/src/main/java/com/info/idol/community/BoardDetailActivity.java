@@ -117,6 +117,7 @@ public class BoardDetailActivity extends BaseActivity {
     private void initView() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(null);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         et_input = (EditText) findViewById(R.id.et_input);
         iv_send_btn = (ImageView) findViewById(R.id.iv_write_btn);
@@ -224,6 +225,7 @@ public class BoardDetailActivity extends BaseActivity {
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int index) {
+                final Comment comment = (Comment) mAdapter.getItem(position).getData();
                 String selectedText = items[index].toString();
                 if (selectedText.equals("대댓글 달기")) {
                     if (et_input.length() != 0) {
@@ -236,7 +238,6 @@ public class BoardDetailActivity extends BaseActivity {
                     }
 
                 } else if (selectedText.equals("삭제")) {
-                    final Comment comment = (Comment) mAdapter.getItem(position).getData();
                     progressON("삭제중..");
                     apiService.postDeleteComment(comment.getCno()).enqueue(new Callback<Boolean>() {
                         @Override
@@ -260,11 +261,14 @@ public class BoardDetailActivity extends BaseActivity {
                     });
 
                 } else if (selectedText.equals("쪽지 보내기")) {
-
+                    User user=comment.getUser();
+                    Intent intent= new Intent(BoardDetailActivity.this,NoteWriteActivity.class);
+                    intent.putExtra("recipient",user);
+                    startActivity(intent);
+                    overridePendingTransition(R.anim.sliding_up,R.anim.stay);
                 } else {
                     //신고하기
                 }
-                Toast.makeText(BoardDetailActivity.this, selectedText, Toast.LENGTH_SHORT).show();
             }
         });
         builder.show();

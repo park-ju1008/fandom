@@ -59,6 +59,9 @@ public abstract class BottomNavigationParentActivity extends AppCompatActivity i
                     case R.id.action_three:
                         menuIntent=new Intent(BottomNavigationParentActivity.this,ScheduleActivity.class);
                         break;
+                    case R.id.action_four:
+                        menuIntent=new Intent(BottomNavigationParentActivity.this,MoreActivity.class);
+                        break;
                 }
                 startActivity(menuIntent);
                 overridePendingTransition(0,0);

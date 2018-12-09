@@ -68,6 +68,7 @@ public class FacebookloginCallback implements FacebookCallback<LoginResult> {
                                     .build();
                             final ApiService retrofitApiService =retrofit.create(ApiService.class);
 
+                            //FIXME////////////////////////////////////////////////////
                             Thread netThread = new Thread() {
                                 @Override
                                 public void run() {
@@ -76,10 +77,12 @@ public class FacebookloginCallback implements FacebookCallback<LoginResult> {
                                         input.put("userId", object.getString("id"));
                                         input.put("userNick", object.getString("name"));
                                         input.put("route","2");
-                                        String accessToken = retrofitApiService.postUserInfo(input).execute().body();
                                         SharedPreferences pref=mContext.getSharedPreferences("user",Activity.MODE_PRIVATE);
+                                        String accessToken=pref.getString("AccessToken","");
+                                        input.put("accessToken",accessToken);
+                                        retrofitApiService.postUserInfo(input).execute().body();
                                         SharedPreferences.Editor editor= pref.edit();
-                                        editor.putString("AccessToken",accessToken);
+                                        editor.putBoolean("autoLogin",false);
                                         editor.commit();
                                     } catch (IOException e) {
                                         e.printStackTrace();

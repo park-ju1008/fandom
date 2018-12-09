@@ -11,10 +11,13 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.info.idol.community.Class.Star;
 import com.info.idol.community.GlobalApplication;
 import com.info.idol.community.NoticeActivity;
 import com.info.idol.community.R;
+
+import java.io.IOException;
 
 public class BoardActivity extends BottomNavigationParentActivity implements TextView.OnClickListener {
     final static int ENT_SM = 1;

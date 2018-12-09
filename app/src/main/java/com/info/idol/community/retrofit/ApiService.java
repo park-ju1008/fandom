@@ -37,7 +37,7 @@ public interface ApiService {
      */
     @FormUrlEncoded
     @POST("join.php")
-    Call<String> postUserInfo(@FieldMap HashMap<String, Object> param);
+    Call<Boolean> postUserInfo(@FieldMap HashMap<String, Object> param);
 
     @GET("getuser.php")
     Call<User> getUserInfo(@Query("access_code") String access_token);
@@ -50,7 +50,7 @@ public interface ApiService {
 
     @FormUrlEncoded
     @POST("login.php")
-    Call<String> postUserLogin(@FieldMap HashMap<String, Object> param);
+    Call<Boolean> postUserLogin(@FieldMap HashMap<String, Object> param);
 
     @GET("starList.php")
     Call<List<Star>> getStarList(@Query("start") int start, @Query("end") int end);
@@ -75,4 +75,8 @@ public interface ApiService {
     @FormUrlEncoded
     @POST("comment_delete.php")
     Call<Boolean>postDeleteComment(@Field("cno") String cno);
+
+    @FormUrlEncoded
+    @POST("sendNote.php")
+    Call<Integer>postSendNote(@FieldMap HashMap<String, Object> param);
 }
