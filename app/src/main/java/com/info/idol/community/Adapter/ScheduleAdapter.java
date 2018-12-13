@@ -57,7 +57,7 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
             holder.text_reply.setText(""+schedule.getComment());
             if(!schedule.getImage().isEmpty()){
                 JSONArray jarray = new JSONArray(schedule.getImage());
-                Glide.with(context).load("http://35.237.204.193/uploads/"+jarray.get(0).toString()).centerCrop().into(holder.img_main);
+                Glide.with(context).load("http://35.229.103.161/uploads/"+jarray.get(0).toString()).centerCrop().into(holder.img_main);
 
             }else{
                 Glide.with(context).load(R.color.white).into(holder.img_main);

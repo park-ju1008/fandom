@@ -22,7 +22,7 @@ import retrofit2.http.Part;
 import retrofit2.http.Query;
 
 public interface ApiService {
-    public static final String API_URL = "http://35.237.204.193/";
+    public static final String API_URL = "http://35.229.103.161/";
 
     /**
      * POST 방식, 주소는 위들과 같음.
@@ -47,6 +47,13 @@ public interface ApiService {
 
     @GET("UserValidate.php")
     Call<Boolean> getValidateNick(@Query("userNick") String userNick);
+
+    /*
+    유저정보를 업데이트하기 위한 메소드
+     */
+    @Multipart
+    @POST("update_userInfo.php")
+    Call<User> postUpdateUserInfo(@Part("user") RequestBody user, @Part MultipartBody.Part image);
 
     @FormUrlEncoded
     @POST("login.php")
@@ -76,7 +83,7 @@ public interface ApiService {
     @POST("comment_delete.php")
     Call<Boolean>postDeleteComment(@Field("cno") String cno);
 
-    @FormUrlEncoded
+    @Multipart
     @POST("sendNote.php")
     Call<Integer>postSendNote(@FieldMap HashMap<String, Object> param);
 }

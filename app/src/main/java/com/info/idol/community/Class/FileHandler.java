@@ -8,6 +8,9 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.util.Log;
 
+import com.bumptech.glide.Glide;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.info.idol.community.GlobalApplication;
 import com.info.idol.community.retrofit.ApiService;
 
 import org.json.JSONObject;
@@ -18,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.MediaType;
@@ -32,7 +36,11 @@ public class FileHandler {
     private String sid;  //스타 아이디
     private String bcdoe; //게시판 타입
     private String accessToken;
-    private Callback<MyResponse> mCallback;
+
+    public FileHandler(Context context, ApiService apiService) {
+        mContext = context;
+        mApiService = apiService;
+    }
 
     public FileHandler(Context context, ApiService apiService, String sid, String bcode, String accessToken) {
         mContext = context;
@@ -42,16 +50,10 @@ public class FileHandler {
         this.accessToken = accessToken;
     }
 
-    public void SetCallback(Callback<MyResponse> callback) {
-        mCallback = callback;
-    }
-
-
-    public void upload(Object object, Uri... uris) {
+    public void upload(Board schedule, List<Uri> uris, Callback<MyResponse> callback) {
 
         JSONObject json = null;
         Map<String, String> data = new HashMap<String, String>();
-        Board schedule = (Board) object;
         data.put("boardtype", bcdoe);
         data.put("title", schedule.getTitle());
         data.put("body", schedule.getBody());
@@ -63,16 +65,33 @@ public class FileHandler {
 
         ArrayList<MultipartBody.Part> parts = new ArrayList<>();
         //이미지 수만큼할당
-        for (int index = 0; index < uris.length; index++) {
-            Log.d("upload", "requestUpload:  image " + index + "  " + uris[index]);
+        for (int index = 0; index < uris.size(); index++) {
+            Log.d("upload", "requestUpload:  image " + index + "  " + uris.get(index));
 //            File file = new File("" + uris[index]);
-            File file = resizingImage(uris[index]);
+            File file = resizingImage(uris.get(index));
             RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file);
             parts.add(MultipartBody.Part.createFormData("file[]", file.getName(), requestFile));
         }
 
-        mApiService.uploadImage(item, parts).enqueue(mCallback);
+        mApiService.uploadImage(item, parts).enqueue(callback);
 
+    }
+
+    public void updateUserInfo(int type, User user, Uri uri, Callback<User> callback) {
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> map = mapper.convertValue(user, Map.class);
+        map.put("type", type);
+        Log.e("TESTUID", map.toString());
+        JSONObject json = new JSONObject(map);
+        RequestBody item = RequestBody.create(MediaType.parse("text/plain"), json.toString());
+
+        MultipartBody.Part part = null;
+        if (uri != null) {
+            File file = resizingImage(uri);
+            RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file);
+            part = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+        }
+        mApiService.postUpdateUserInfo(item, part).enqueue(callback);
     }
 
 

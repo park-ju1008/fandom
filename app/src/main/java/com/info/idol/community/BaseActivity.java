@@ -3,6 +3,7 @@ package com.info.idol.community;
 import android.support.v7.app.AppCompatActivity;
 
 public class BaseActivity extends AppCompatActivity {
+
     public void progressON() {
         GlobalApplication.getGlobalApplicationContext().progressON(this, null);
     }

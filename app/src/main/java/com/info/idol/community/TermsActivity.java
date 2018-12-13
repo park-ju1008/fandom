@@ -21,7 +21,7 @@ public class TermsActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("이용약관");
         //이용약관을 위한 웹뷰
         mWebView=(WebView)findViewById(R.id.webView);
-        mWebView.loadUrl("http://35.237.204.193/terms.html");
+        mWebView.loadUrl("http://35.229.103.161/terms.html");
 
         btn_ok=(Button)findViewById(R.id.btn_ok);
         btn_ok.setOnClickListener(new Button.OnClickListener(){

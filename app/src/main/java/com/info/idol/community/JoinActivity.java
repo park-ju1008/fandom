@@ -125,8 +125,8 @@ public class JoinActivity extends AppCompatActivity {
 
                         }
                     });
-                    //좋아하는 연예인 설정 화면으로 넘어감.
-                    Intent intent = new Intent(view.getContext(), SelectStarActivity.class);
+                    //로그인 화면으로 넘어감.
+                    Intent intent = new Intent(view.getContext(), LoginActivity.class);
                     startActivity(intent);
                     finish();
                 }

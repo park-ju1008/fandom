@@ -92,6 +92,7 @@
         <activity android:name=".NoteWriteActivity" />
         <activity android:name=".main.MoreActivity" />
         <activity android:name=".NoteListActivity" />
+        <activity android:name=".UpdateNicknameActivity" />
 
         <service
             android:exported="false"
