@@ -1,4 +1,4 @@
-package com.info.idol.community.service;
+package com.info.idol.community.fireService;
 
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;

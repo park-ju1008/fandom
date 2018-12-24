@@ -31,6 +31,12 @@ public class Board implements Parcelable {
         this.image = image;
     }
 
+    public Board(String body,String date,User user){
+        this.body=body;
+        this.date=date;
+        this.user=user;
+    }
+
 
     protected Board(Parcel in) {
         bno = in.readString();

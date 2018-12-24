@@ -5,13 +5,16 @@ import com.info.idol.community.Class.Comment;
 import com.info.idol.community.Class.MyResponse;
 import com.info.idol.community.Class.Star;
 import com.info.idol.community.Class.User;
+import com.info.idol.community.chat.Room;
 
 import java.util.HashMap;
 import java.util.List;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
@@ -29,7 +32,7 @@ public interface ApiService {
      *
      * @param param 요청에 필요한 값들.
      * @return Data 객체를 JSON 형태로 반환.
-     * @FieldMap HashMap<String   ,       Object> param :
+     * @FieldMap HashMap<String       ,               Object> param :
      * Field 형식을 통해 넘겨주는 값들이 여러 개일 때 FieldMap을 사용함.
      * Retrofit에서는 Map 보다는 HashMap 권장.
      * @FormUrlEncoded Field 형식 사용 시 Form이 Encoding 되어야 하기 때문에 사용하는 어노테이션
@@ -73,7 +76,7 @@ public interface ApiService {
     Call<MyResponse> uploadImage(@Part("item") RequestBody data, @Part List<MultipartBody.Part> files);
 
     @GET("commentLoad.php")
-    Call<List<Comment>>getCommentList(@Query("bno") String bno);
+    Call<List<Comment>> getCommentList(@Query("bno") String bno);
 
     @FormUrlEncoded
     @POST("comment_insert.php")
@@ -81,9 +84,22 @@ public interface ApiService {
 
     @FormUrlEncoded
     @POST("comment_delete.php")
-    Call<Boolean>postDeleteComment(@Field("cno") String cno);
+    Call<Boolean> postDeleteComment(@Field("cno") String cno);
 
-    @Multipart
+    @FormUrlEncoded
     @POST("sendNote.php")
-    Call<Integer>postSendNote(@FieldMap HashMap<String, Object> param);
+    Call<Integer> postSendNote(@FieldMap HashMap<String, Object> param);
+
+    @FormUrlEncoded
+    @POST("noteLoad.php")
+    Call<List<Board>> postLoadNote(@FieldMap HashMap<String, Object> param);
+
+    @DELETE("note_delete.php")
+    Call<ResponseBody> deleteNote(@Query("type")int type,@Query("bno") String bno);
+
+    /**
+     * 채팅방 목록 불러오는 메소드
+     */
+    @GET("chatList.php")
+    Call<List<Room>> getChatList(@Query("start") int start);
 }

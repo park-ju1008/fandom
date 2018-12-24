@@ -8,6 +8,11 @@ public class User implements Parcelable {
     private String nickname;
     private String image;
 
+    public User(int uid, String nickname, String image) {
+        this.uid = uid;
+        this.nickname = nickname;
+        this.image = image;
+    }
 
     public int getUid() {
         return uid;

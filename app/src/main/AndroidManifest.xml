@@ -93,20 +93,25 @@
         <activity android:name=".main.MoreActivity" />
         <activity android:name=".NoteListActivity" />
         <activity android:name=".UpdateNicknameActivity" />
+        <activity android:name=".NoteDetailActivity" />
+        <activity android:name=".chat.ChattingRoomActivity"
+            />
+        <activity android:name=".chat.ChatLobbyMainActivity" />
 
         <service
             android:exported="false"
-            android:name=".service.MyJobService">
+            android:name=".fireService.MyJobService">
             <intent-filter>
                 <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE"/>
             </intent-filter>
         </service>
         <service
-            android:name=".service.MyFirebaseMessagingService">
+            android:name=".fireService.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
 
     </application>
 

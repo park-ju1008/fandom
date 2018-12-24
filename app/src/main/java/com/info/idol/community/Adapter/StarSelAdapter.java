@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.info.idol.community.Class.Star;
 import com.info.idol.community.main.MainActivity;
@@ -76,6 +75,7 @@ public class StarSelAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
+
     public void addAll(List<Star> lst){
         itemList.clear();
         itemList.addAll(lst);
@@ -116,14 +116,6 @@ public class StarSelAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
-
-
-
-
-
-    public interface OnLoadMoreListener{
-        void onLoadMore();
-    }
 
     //뷰홀더 클래스
     static class StarViewHolder extends RecyclerView.ViewHolder{

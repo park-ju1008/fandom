@@ -75,34 +75,38 @@
 
             <TableLayout
                 android:id="@+id/tableLayout"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp">
+                android:padding="10dp"
+                android:stretchColumns="*">
 
                 <TableRow
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
 
                     <Button
                         android:id="@+id/bt_note"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@color/background_color"
+                        android:background="@null"
                         android:drawableTop="@drawable/ic_email"
                         android:text="쪽지함" />
+
+                    <Button
+                        android:id="@+id/bt_more_talk"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:drawableTop="@drawable/ic_talk"
+                        android:text="톡톡" />
+
                 </TableRow>
 
                 <TableRow
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
             </TableLayout>
         </LinearLayout>
     </ScrollView>

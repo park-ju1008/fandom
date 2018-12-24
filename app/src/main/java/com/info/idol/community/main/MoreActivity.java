@@ -16,12 +16,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 import com.gun0912.tedpicker.Config;
 import com.gun0912.tedpicker.ImagePickerActivity;
-import com.info.idol.community.Adapter.StarSelAdapter;
+import com.info.idol.community.chat.ChatLobbyMainActivity;
+import com.info.idol.community.chat.ChattingRoomActivity;
 import com.info.idol.community.Class.FileHandler;
 import com.info.idol.community.Class.Star;
 import com.info.idol.community.Class.User;
@@ -32,12 +32,8 @@ import com.info.idol.community.SelectStarActivity;
 import com.info.idol.community.UpdateNicknameActivity;
 import com.info.idol.community.custom.CircleImageView;
 
-import org.json.JSONObject;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -48,6 +44,7 @@ public class MoreActivity extends BottomNavigationParentActivity implements View
     final static int INTENT_REQUEST_GET_IMAGES = 1;
     final static int INTENT_REQUEST_GET_NICKNAME = 2;
     private Button bt_note;
+    private Button bt_more_talk;
     private LinearLayout ll_userInfo;
     private CircleImageView iv_userImage;
     private TextView tv_nickName;
@@ -76,6 +73,8 @@ public class MoreActivity extends BottomNavigationParentActivity implements View
     private void initView() {
         bt_note = (Button) findViewById(R.id.bt_note);
         bt_note.setOnClickListener(this);
+        bt_more_talk=(Button)findViewById(R.id.bt_more_talk);
+        bt_more_talk.setOnClickListener(this);
         ll_userInfo = (LinearLayout) findViewById(R.id.ll_more_userInfo);
         ll_userInfo.setOnClickListener(this);
         iv_userImage = (CircleImageView) findViewById(R.id.circle_more_userimage);
@@ -91,9 +90,14 @@ public class MoreActivity extends BottomNavigationParentActivity implements View
 
     @Override
     public void onClick(View view) {
+        Intent intent;
         switch (view.getId()) {
             case R.id.bt_note:
-                Intent intent = new Intent(view.getContext(), NoteListActivity.class);
+                 intent = new Intent(view.getContext(), NoteListActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.bt_more_talk:
+                intent=new Intent(view.getContext(),ChatLobbyMainActivity.class);
                 startActivity(intent);
                 break;
             case R.id.ll_more_userInfo:

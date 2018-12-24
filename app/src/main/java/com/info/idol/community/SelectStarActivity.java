@@ -14,6 +14,7 @@ import android.telecom.Call;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.info.idol.community.Adapter.OnLoadMoreListener;
 import com.info.idol.community.Adapter.StarSelAdapter;
 import com.info.idol.community.Class.Star;
 import com.info.idol.community.main.MainActivity;
@@ -26,7 +27,7 @@ import java.util.List;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class SelectStarActivity extends AppCompatActivity implements StarSelAdapter.OnLoadMoreListener {
+public class SelectStarActivity extends AppCompatActivity implements OnLoadMoreListener {
 
     private StarSelAdapter mAdapter;
     private ArrayList<Star> itemList;

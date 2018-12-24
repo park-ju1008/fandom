@@ -72,7 +72,7 @@ public class BoardDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             //아이템이 게시판글이라면 여기로옴.
             Board board = (Board) itemList.get(position).getData();
             if (board.getUser().getImage() != null) {
-                Glide.with(mContext).load("http://35.237.204.193/uploads/" + board.getUser().getImage()).centerCrop().into(((BodyViewHolder) holder).iv_user_image);
+                Glide.with(mContext).load("http://35.229.103.161/uploads/" + board.getUser().getImage()).centerCrop().into(((BodyViewHolder) holder).iv_user_image);
             } else {
                 Glide.with(mContext).load(R.drawable.user).into(((BodyViewHolder) holder).iv_user_image);
             }
@@ -94,7 +94,7 @@ public class BoardDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     for(int i=0;i<json.length();i++){
                         Log.e("ARRAY",""+json.get(i).toString());
                         ImageView imageView=new ImageView(mContext);
-                        Glide.with(mContext).load("http://35.237.204.193/uploads/"+json.get(i).toString()).fitCenter().into(imageView);
+                        Glide.with(mContext).load("http://35.229.103.161/uploads/"+json.get(i).toString()).fitCenter().into(imageView);
                         ((BodyViewHolder)holder).root.addView(imageView);
 
                         LinearLayout.LayoutParams plControl = (LinearLayout.LayoutParams) imageView.getLayoutParams();

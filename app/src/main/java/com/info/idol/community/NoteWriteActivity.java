@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -31,6 +32,7 @@ public class NoteWriteActivity extends BaseActivity {
         setContentView(R.layout.activity_note_write);
         Intent intent = getIntent();
         receiverUser = intent.getParcelableExtra("recipient");
+        Log.e("USERRE",receiverUser.toString());
         sendUser = GlobalApplication.getGlobalApplicationContext().getUser();
         initView();
         mApiService=GlobalApplication.getGlobalApplicationContext().getRetrofitApiService();

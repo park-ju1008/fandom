@@ -3,6 +3,7 @@ package com.info.idol.community;
 import android.support.v7.app.AppCompatActivity;
 
 public class BaseActivity extends AppCompatActivity {
+    protected String domain="http://35.229.103.161/uploads/";
 
     public void progressON() {
         GlobalApplication.getGlobalApplicationContext().progressON(this, null);
