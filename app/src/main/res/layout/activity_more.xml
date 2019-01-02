@@ -101,6 +101,14 @@
                         android:drawableTop="@drawable/ic_talk"
                         android:text="톡톡" />
 
+                    <Button
+                        android:id="@+id/bt_more_video"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:drawableTop="@drawable/ic_video"
+                        android:text="라이브톡" />
+
                 </TableRow>
 
                 <TableRow

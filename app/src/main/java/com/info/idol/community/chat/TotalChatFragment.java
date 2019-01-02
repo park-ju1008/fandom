@@ -94,7 +94,7 @@ public class TotalChatFragment extends Fragment implements OnLoadMoreListener {
     @Override
     public void onLoadMore() {
         //디비 댕겨오기
-        apiService.getChatList(start).enqueue(new Callback<List<Room>>() {
+        apiService.getChatList(start,0).enqueue(new Callback<List<Room>>() {
             @Override
             public void onResponse(Call<List<Room>> call, Response<List<Room>> response) {
                 if (response.isSuccessful()) {

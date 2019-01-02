@@ -5,6 +5,7 @@ import com.info.idol.community.Class.Comment;
 import com.info.idol.community.Class.MyResponse;
 import com.info.idol.community.Class.Star;
 import com.info.idol.community.Class.User;
+import com.info.idol.community.VideoBroadCast.VideoRoom;
 import com.info.idol.community.chat.Room;
 
 import java.util.HashMap;
@@ -101,5 +102,8 @@ public interface ApiService {
      * 채팅방 목록 불러오는 메소드
      */
     @GET("chatList.php")
-    Call<List<Room>> getChatList(@Query("start") int start);
+    Call<List<Room>> getChatList(@Query("start") int start,@Query("type")int type);
+
+    @GET("videoChatList.php")
+    Call<List<VideoRoom>>getVideoChatList(@Query("start")int start);
 }

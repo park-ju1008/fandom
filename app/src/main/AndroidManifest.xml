@@ -13,6 +13,7 @@
     <!--카메라와 저장소에 대한 퍼미션-->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:name=".GlobalApplication"
@@ -94,25 +95,26 @@
         <activity android:name=".NoteListActivity" />
         <activity android:name=".UpdateNicknameActivity" />
         <activity android:name=".NoteDetailActivity" />
-        <activity android:name=".chat.ChattingRoomActivity"
-            />
+        <activity android:name=".chat.ChattingRoomActivity" />
         <activity android:name=".chat.ChatLobbyMainActivity" />
+        <activity android:name=".VideoBroadCast.VideoBroadcaster" />
+        <activity android:name=".VideoBroadCast.liveVideoPlayer.VideoPlayerActivity" />
+        <activity android:name=".VideoBroadCast.VideoBroadListActivity" />
 
         <service
-            android:exported="false"
-            android:name=".fireService.MyJobService">
+            android:name=".fireService.MyJobService"
+            android:exported="false">
             <intent-filter>
-                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE"/>
+                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE" />
             </intent-filter>
         </service>
-        <service
-            android:name=".fireService.MyFirebaseMessagingService">
+        <service android:name=".fireService.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
-
+        <service android:name="io.antmedia.android.broadcaster.LiveVideoBroadcaster" />
     </application>
 
 </manifest>

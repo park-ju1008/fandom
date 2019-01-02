@@ -21,7 +21,7 @@ public class SettingDialog extends Dialog implements View.OnClickListener {
 
     public SettingDialog(@NonNull Context context) {
         super(context);
-        this.context=context;
+        this.context = context;
     }
 
     public void setOnDialogListener(SettingDialog.onDialogListener onDialogListener) {
@@ -32,10 +32,10 @@ public class SettingDialog extends Dialog implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_room_setting);
-        et_title=(EditText)findViewById(R.id.editText_setting_title);
-        et_capacity=(EditText)findViewById(R.id.editText_setting_capacity);
-        bt_cancle=(Button)findViewById(R.id.button_setting_cancle);
-        bt_ok=(Button)findViewById(R.id.button_setting_ok);
+        et_title = (EditText) findViewById(R.id.editText_setting_title);
+        et_capacity = (EditText) findViewById(R.id.editText_setting_capacity);
+        bt_cancle = (Button) findViewById(R.id.button_setting_cancle);
+        bt_ok = (Button) findViewById(R.id.button_setting_ok);
         bt_cancle.setOnClickListener(this);
         bt_ok.setOnClickListener(this);
 
@@ -43,17 +43,17 @@ public class SettingDialog extends Dialog implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.button_setting_ok:
-                if(et_title.getText().toString().isEmpty()){
-                    Toast.makeText(context,"방제목을 입력하세요.",Toast.LENGTH_SHORT).show();
-                    break;
-                }else if( Integer.parseInt(et_capacity.getText().toString())<2||Integer.parseInt(et_capacity.getText().toString())>50){
-                    Toast.makeText(context,"최대 인원수는 2~50까지 지정할수 있습니다..",Toast.LENGTH_SHORT).show();
-                    break;
-                }else{
+                if (et_title.getText().toString().isEmpty()) {
+                    Toast.makeText(context, "방제목을 입력하세요.", Toast.LENGTH_SHORT).show();
+                } else if (et_capacity.getText().toString().isEmpty()) {
+                    Toast.makeText(context, "방인원수을 입력하세요.", Toast.LENGTH_SHORT).show();
+                } else if (Integer.parseInt(et_capacity.getText().toString()) < 2 || Integer.parseInt(et_capacity.getText().toString()) > 50) {
+                    Toast.makeText(context, "최대 인원수는 2~50까지 지정할수 있습니다..", Toast.LENGTH_SHORT).show();
+                } else {
                     dismiss();
-                    onDialogListener.sendRoomInfo(et_title.getText().toString(),Integer.parseInt(et_capacity.getText().toString()));
+                    onDialogListener.sendRoomInfo(et_title.getText().toString(), Integer.parseInt(et_capacity.getText().toString()));
                 }
                 break;
             case R.id.button_setting_cancle:
@@ -61,8 +61,9 @@ public class SettingDialog extends Dialog implements View.OnClickListener {
                 break;
         }
     }
-    interface onDialogListener{
-        void sendRoomInfo(String title,int capacity);
+
+    public interface onDialogListener {
+        void sendRoomInfo(String title, int capacity);
     }
 }
 

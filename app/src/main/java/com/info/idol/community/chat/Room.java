@@ -3,10 +3,19 @@ package com.info.idol.community.chat;
 public class Room {
     private int id;
     private String name;
+    private String nickname;
     private int peopleNum;
     private int capacity;
 
-    public Room(int id,String name, int peopleNum, int capacity) {
+    public Room(int id, String name, String nickname, int peopleNum, int capacity) {
+        this.id = id;
+        this.name = name;
+        this.nickname = nickname;
+        this.peopleNum = peopleNum;
+        this.capacity = capacity;
+    }
+
+    public Room(int id, String name, int peopleNum, int capacity) {
         this.id = id;
         this.name = name;
         this.peopleNum = peopleNum;
@@ -28,6 +37,14 @@ public class Room {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public int getPeopleNum() {

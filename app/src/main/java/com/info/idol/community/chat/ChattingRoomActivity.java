@@ -1,14 +1,9 @@
 package com.info.idol.community.chat;
 
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -17,8 +12,6 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
@@ -26,27 +19,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.info.idol.community.BaseActivity;
-import com.info.idol.community.Class.SoftKeyboard;
 import com.info.idol.community.Class.User;
 import com.info.idol.community.GlobalApplication;
 import com.info.idol.community.R;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ChattingRoomActivity extends BaseActivity {
     private Handler handler;
     private String data; //서버로부터 받아온 스트림
-    private String message; //보내는 메시지
-    private SocketChannel socketChannel;
-    private static final String HOST = "35.229.103.161";
-    private static final int PORT = 5001;
+    private NettyChat nettyChat;
     private ObjectMapper mapper = new ObjectMapper();  //string to map mapping을 위한 객체 생성.
     private User user;
     private Room room;
@@ -75,9 +59,16 @@ public class ChattingRoomActivity extends BaseActivity {
             myDataBase.insertRoom(roomId, roomName);
         }
         //서버로 전송할 데이터를만들어준다 (방생성,방입장)
-        message = getMessage(method, null);
-        Log.e("START", message);
-        startClient();
+        nettyChat=new NettyChat(getMessage(method,null));
+        nettyChat.setOnDataListener(new NettyChat.OnDataListener() {
+            @Override
+            public void onUpdate(String loadData) {
+                data=loadData;
+                handler.post(showUpdate);
+            }
+
+        });
+        nettyChat.startClient();
         initView();
 
     }
@@ -85,11 +76,7 @@ public class ChattingRoomActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try {
-            socketChannel.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        nettyChat.closeSocketChannel();
     }
 
 
@@ -112,7 +99,7 @@ public class ChattingRoomActivity extends BaseActivity {
                     recyclerView.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            recyclerView.smoothScrollToPosition(
+                            recyclerView.scrollToPosition(
                                     recyclerView.getAdapter().getItemCount() - 1);
                         }
                     }, 100);
@@ -137,11 +124,12 @@ public class ChattingRoomActivity extends BaseActivity {
                  * 로컬데이터베이스에 저장후
                  * 화면에 뿌려준후 서버 전송
                  */
-                message = getMessage("send", et_message.getText().toString());
+//                message = getMessage("send", et_message.getText().toString());
                 int cid = myDataBase.insertChat(user.getUid(), et_message.getText().toString(),0, room.getId());
                 adapter.addItem(new Chat(cid, et_message.getText().toString(), 0,user));
                 recyclerView.smoothScrollToPosition(adapter.getItemCount());
-                new SendmsgTask().execute(message);
+//                new SendmsgTask().execute(message);
+                nettyChat.sendMessage(getMessage("send", et_message.getText().toString()));
                 et_message.setText(null);
             }
         });
@@ -173,27 +161,6 @@ public class ChattingRoomActivity extends BaseActivity {
     }
 
 
-    private class SendmsgTask extends AsyncTask<String, Void, Void> {
-
-        @Override
-        protected Void doInBackground(String... strings) {
-            try {
-                Log.e("SEND_MESSAGE", strings[0]);
-                socketChannel
-                        .socket()
-                        .getOutputStream()
-                        .write(strings[0].getBytes("UTF-8"));
-            } catch (IOException e) {
-
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-        }
-    }
 
 
     @Override
@@ -262,73 +229,13 @@ public class ChattingRoomActivity extends BaseActivity {
         }
     };
 
-    private void startClient() {
-        //서버로 접속
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    socketChannel = SocketChannel.open();
-                    socketChannel.configureBlocking(true);
-                    socketChannel.connect(new InetSocketAddress(HOST, PORT));
-
-                } catch (IOException e) {
-                    Log.e("CHAT", "IOException");
-                    e.printStackTrace();
-                }
-                if (socketChannel.isOpen()) {
-                    new SendmsgTask().execute(message);
-                    //소켓 채널을 성공적으로 열었다면 버퍼읽기를 시작.
-                    receive();
-                }
-            }
-        }.start();
-    }
-
-    private void receive() {
-        final StringBuilder strBuilder = new StringBuilder();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
-        Charset charset = Charset.forName("UTF-8");
-        while (true) {
-            try {
-                int readByteCount = 0;
-                do {
-                    readByteCount = socketChannel.read(byteBuffer); //데이터받기
-                    byteBuffer.flip(); //저장한 바이트 끝으로 limit 가 이동한다.
-                    strBuilder.append(charset.decode(byteBuffer).toString());
-                    byteBuffer.compact();
-                } while (readByteCount == 1024);
-
-                /*
-                 * read() 메소드를 호출하면 상대방이 데이터를 보내기 전까지는 블로킹
-                 * 블로킹이 해제되는 경우는 아래의 세가지 경우
-                 * 서버가 정상적으로 Socket의 close()를 호출했을 경우 -1
-                 * 서버가 비정상적으로 종료됬을때 IOException 발생
-                 * 서버가 비정상적으로 종료됬을때 IOException 발생
-                 * 서버가 데이터를 보냈을때 읽은 바이트 수
-                 */
-                if (readByteCount == -1) {
-                    throw new IOException();
-                }
-
-
-                data = strBuilder.toString();
-                Log.e("CHAT_reeive", "msg: " + data);
-                strBuilder.delete(0, strBuilder.length());
-                //UI를 변경할수 있도록 핸들러로 던져줌.
-                handler.post(showUpdate);
-            } catch (IOException e) {
-                e.printStackTrace();
-                break;
-            }
-        }
-    }
 
     private String getMessage(String method, String message) {
         HashMap<String, Object> map = new HashMap<>();
         if (method.equals("create_room")) {
             SharedPreferences pref = getSharedPreferences("user", MODE_PRIVATE);
             String accessToken = pref.getString("AccessToken", "");
+            map.put("type",0);
             map.put("deviceToken", accessToken);
             map.put("roomName", room.getName());
             map.put("capacity", room.getCapacity());

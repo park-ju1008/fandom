@@ -20,8 +20,9 @@ import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 import com.gun0912.tedpicker.Config;
 import com.gun0912.tedpicker.ImagePickerActivity;
+import com.info.idol.community.VideoBroadCast.VideoBroadListActivity;
+import com.info.idol.community.VideoBroadCast.VideoBroadcaster;
 import com.info.idol.community.chat.ChatLobbyMainActivity;
-import com.info.idol.community.chat.ChattingRoomActivity;
 import com.info.idol.community.Class.FileHandler;
 import com.info.idol.community.Class.Star;
 import com.info.idol.community.Class.User;
@@ -45,6 +46,7 @@ public class MoreActivity extends BottomNavigationParentActivity implements View
     final static int INTENT_REQUEST_GET_NICKNAME = 2;
     private Button bt_note;
     private Button bt_more_talk;
+    private Button bt_more_video;
     private LinearLayout ll_userInfo;
     private CircleImageView iv_userImage;
     private TextView tv_nickName;
@@ -75,6 +77,8 @@ public class MoreActivity extends BottomNavigationParentActivity implements View
         bt_note.setOnClickListener(this);
         bt_more_talk=(Button)findViewById(R.id.bt_more_talk);
         bt_more_talk.setOnClickListener(this);
+        bt_more_video=(Button)findViewById(R.id.bt_more_video);
+        bt_more_video.setOnClickListener(this);
         ll_userInfo = (LinearLayout) findViewById(R.id.ll_more_userInfo);
         ll_userInfo.setOnClickListener(this);
         iv_userImage = (CircleImageView) findViewById(R.id.circle_more_userimage);
@@ -98,6 +102,10 @@ public class MoreActivity extends BottomNavigationParentActivity implements View
                 break;
             case R.id.bt_more_talk:
                 intent=new Intent(view.getContext(),ChatLobbyMainActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.bt_more_video:
+                intent=new Intent(view.getContext(),VideoBroadListActivity.class);
                 startActivity(intent);
                 break;
             case R.id.ll_more_userInfo:
