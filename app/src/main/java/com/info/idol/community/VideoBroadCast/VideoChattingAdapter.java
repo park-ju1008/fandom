@@ -1,6 +1,5 @@
 package com.info.idol.community.VideoBroadCast;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -27,7 +26,7 @@ public class VideoChattingAdapter extends RecyclerView.Adapter<RecyclerView.View
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if(viewType==VIEW_CHAT){
-            return new VideoChatViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_video_caht,parent,false));
+            return new VideoChatViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_video_chat,parent,false));
         }else{
             return new ActionChatViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_action,parent,false));
         }
@@ -37,7 +36,7 @@ public class VideoChattingAdapter extends RecyclerView.Adapter<RecyclerView.View
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if(holder instanceof VideoChatViewHolder){
             String color=stringToHex(itemList.get(position).getUser().getNickname());
-            ((VideoChatViewHolder)holder).tv_name.setText(itemList.get(position).getUser().getNickname());
+            ((VideoChatViewHolder)holder).tv_name.setText(itemList.get(position).getUser().getNickname()+" :");
             ((VideoChatViewHolder)holder).tv_name.setTextColor(Color.parseColor(color));
             ((VideoChatViewHolder)holder).tv_content.setText(itemList.get(position).getContent());
             ((VideoChatViewHolder)holder).tv_content.setTextColor(Color.parseColor(color));

@@ -5,7 +5,6 @@ import com.info.idol.community.Class.Comment;
 import com.info.idol.community.Class.MyResponse;
 import com.info.idol.community.Class.Star;
 import com.info.idol.community.Class.User;
-import com.info.idol.community.VideoBroadCast.VideoRoom;
 import com.info.idol.community.chat.Room;
 
 import java.util.HashMap;
@@ -104,6 +103,6 @@ public interface ApiService {
     @GET("chatList.php")
     Call<List<Room>> getChatList(@Query("start") int start,@Query("type")int type);
 
-    @GET("videoChatList.php")
-    Call<List<VideoRoom>>getVideoChatList(@Query("start")int start);
+    @GET("roomCheck.php")
+    Call<Integer> getAvailableRoom(@Query("roomId")int roomId);
 }

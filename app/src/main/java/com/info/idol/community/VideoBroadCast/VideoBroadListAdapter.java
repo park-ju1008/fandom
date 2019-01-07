@@ -6,21 +6,30 @@ import android.content.Intent;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.info.idol.community.Adapter.OnLoadMoreListener;
+import com.info.idol.community.GlobalApplication;
 import com.info.idol.community.R;
 import com.info.idol.community.VideoBroadCast.liveVideoPlayer.VideoPlayerActivity;
 import com.info.idol.community.chat.Room;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class VideoBroadListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final int VIEW_ITEM = 1;
@@ -57,19 +66,47 @@ public class VideoBroadListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
-        if(holder instanceof VideoRoomViewHolder){
-            ((VideoRoomViewHolder)holder).tv_title.setText(itemList.get(position).getName());
-            ((VideoRoomViewHolder)holder).tv_name.setText(itemList.get(position).getNickname());
-            ((VideoRoomViewHolder)holder).tv_people.setText(""+itemList.get(position).getPeopleNum());
-            //이미지도 넣어줘야함.
+        if (holder instanceof VideoRoomViewHolder) {
+            ((VideoRoomViewHolder) holder).tv_title.setText(itemList.get(position).getName());
+            ((VideoRoomViewHolder) holder).tv_name.setText(itemList.get(position).getNickname());
+            ((VideoRoomViewHolder) holder).tv_people.setText("" + itemList.get(position).getPeopleNum());
+            Glide.with(context).load("http://35.229.103.161/thumbnails/" + itemList.get(position).getName() + ".png").error(R.drawable.user).diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true).centerCrop().into(((VideoRoomViewHolder) holder).iv_thumbnail);
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent=new Intent(context,VideoPlayerActivity.class);
-                    intent.putExtra("method","enter_room");
-                    intent.putExtra("roomName", itemList.get(position).getName());
-                    intent.putExtra("roomId",itemList.get(position).getId());
-                    ((Activity)context).startActivity(intent);
+                    GlobalApplication.getGlobalApplicationContext().getRetrofitApiService().getAvailableRoom(itemList.get(position).getId()).enqueue(new Callback<Integer>() {
+                        @Override
+                        public void onResponse(Call<Integer> call, Response<Integer> response) {
+                            switch (response.body().intValue()) {
+                                case 0:
+                                    //방에 여유 공간이 있을때
+                                    Intent intent = new Intent(context, VideoPlayerActivity.class);
+                                    intent.putExtra("method", "enter_room");
+                                    intent.putExtra("roomName", itemList.get(position).getName());
+                                    intent.putExtra("roomId", itemList.get(position).getId());
+                                    ((Activity) context).startActivity(intent);
+                                    break;
+                                case 1:
+                                    //방인원이 다 찼을때
+                                    Toast.makeText(context, R.string.full_videoRoom, Toast.LENGTH_SHORT).show();
+                                    break;
+                                case 2:
+                                    //방이 없다면
+                                    Toast.makeText(context, R.string.end_play, Toast.LENGTH_SHORT).show();
+                                    itemList.remove(position);
+                                    notifyItemRemoved(position);
+                                    break;
+                                    default:
+                                        break;
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<Integer> call, Throwable t) {
+                            Log.e("ERROR",t.toString());
+                        }
+                    });
                 }
             });
         }
@@ -94,8 +131,7 @@ public class VideoBroadListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
 
-
-    class VideoRoomViewHolder extends RecyclerView.ViewHolder{
+    class VideoRoomViewHolder extends RecyclerView.ViewHolder {
         public TextView tv_title;
         public TextView tv_name;
         public TextView tv_people;
@@ -103,10 +139,10 @@ public class VideoBroadListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
         public VideoRoomViewHolder(View itemView) {
             super(itemView);
-            tv_title=(TextView)itemView.findViewById(R.id.textView_video_title);
-            tv_name=(TextView)itemView.findViewById(R.id.textView_video_name);
-            tv_people=(TextView)itemView.findViewById(R.id.textView_video_people);
-            iv_thumbnail=(ImageView)itemView.findViewById(R.id.imageView_video_thumbnail);
+            tv_title = (TextView) itemView.findViewById(R.id.textView_video_title);
+            tv_name = (TextView) itemView.findViewById(R.id.textView_video_name);
+            tv_people = (TextView) itemView.findViewById(R.id.textView_video_people);
+            iv_thumbnail = (ImageView) itemView.findViewById(R.id.imageView_video_thumbnail);
         }
     }
 

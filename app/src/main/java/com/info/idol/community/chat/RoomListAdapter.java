@@ -12,14 +12,21 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.info.idol.community.Adapter.OnLoadMoreListener;
 import com.info.idol.community.Class.Star;
+import com.info.idol.community.GlobalApplication;
 import com.info.idol.community.R;
+import com.info.idol.community.VideoBroadCast.liveVideoPlayer.VideoPlayerActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class RoomListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final int VIEW_ITEM = 1;
@@ -62,12 +69,39 @@ public class RoomListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(context, ChattingRoomActivity.class);
-                    intent.putExtra("method","enter_room");
-                    intent.putExtra("roomName", itemList.get(position).getName());
-                    intent.putExtra("roomId",itemList.get(position).getId());
-                    intent.putExtra("capacity",itemList.get(position).getCapacity());
-                    ((Activity)context).startActivity(intent);
+                    GlobalApplication.getGlobalApplicationContext().getRetrofitApiService().getAvailableRoom(itemList.get(position).getId()).enqueue(new Callback<Integer>() {
+                        @Override
+                        public void onResponse(Call<Integer> call, Response<Integer> response) {
+                            switch (response.body().intValue()){
+                                case 0:
+                                    //방에 여유 공간이 있을때
+                                    Intent intent = new Intent(context, ChattingRoomActivity.class);
+                                    intent.putExtra("method","enter_room");
+                                    intent.putExtra("roomName", itemList.get(position).getName());
+                                    intent.putExtra("roomId",itemList.get(position).getId());
+                                    intent.putExtra("capacity",itemList.get(position).getCapacity());
+                                    ((Activity)context).startActivity(intent);
+                                    break;
+                                case 1:
+                                    //방인원이 다 찼을때
+                                    Toast.makeText(context, R.string.full_videoRoom, Toast.LENGTH_SHORT).show();
+                                    break;
+                                case 2:
+                                    //방이 없다면
+                                    Toast.makeText(context, R.string.end_play, Toast.LENGTH_SHORT).show();
+                                    itemList.remove(position);
+                                    notifyItemRemoved(position);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<Integer> call, Throwable t) {
+
+                        }
+                    });
                 }
             });
         }

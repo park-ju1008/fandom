@@ -109,7 +109,8 @@
             android:hint="@string/stream_chat_hint"
             android:textAppearance="?android:textAppearanceMedium"
             android:textColorHint="@color/background_color"
-            android:imeOptions="actionDone" />
+            android:inputType="text"
+            android:imeOptions="actionSend" />
 
     </LinearLayout>
 

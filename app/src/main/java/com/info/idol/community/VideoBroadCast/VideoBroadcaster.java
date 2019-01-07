@@ -227,10 +227,31 @@ public class VideoBroadcaster extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.e("TAG","onDestroy");
         //방을 나갈때 방을 종료 하기위해 서버로 메시지 전송. (여기가 안된다면 백버튼 눌럿을때 보내기)
         if(nettyChat.getSocketChannel()!=null){
+            Log.e("TAG","onDestroyIn netty");
             nettyChat.setFinish(true);
             nettyChat.sendMessage(getMessage("remove_room", null));
+            nettyChat=null;
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(mIsRecording){
+            new AlertDialog.Builder(VideoBroadcaster.this)
+                    .setMessage(R.string.end_broadcasting)
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            triggerStopRecording();
+                            finish();
+                        }
+                    })
+                    .show();
+        }else{
+            finish();
         }
     }
 
@@ -243,6 +264,7 @@ public class VideoBroadcaster extends BaseActivity {
         }
 
     }
+
 
     public void showSetResolutionDialog(View v) {
 
@@ -301,7 +323,9 @@ public class VideoBroadcaster extends BaseActivity {
                                 mBroadcastControlButton.setText(R.string.stop_broadcasting);
                                 mSettingsButton.setVisibility(View.GONE);
                                 startTimer();//start the recording duration
-                                nettyChat.startClient();//채팅 시작을 위한 연결
+                                if(!nettyChat.isConnected()){
+                                    nettyChat.startClient();//채팅 시작을 위한 연결
+                                }
                             } else {
                                 Snackbar.make(mRootView, R.string.stream_not_started, Snackbar.LENGTH_LONG).show();
 
@@ -411,9 +435,9 @@ public class VideoBroadcaster extends BaseActivity {
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
                 switch (actionId) {
-                    case EditorInfo.IME_ACTION_DONE:
+                    case EditorInfo.IME_ACTION_SEND:
                         //메시지 전송
-                        if (nettyChat.getSocketChannel().isOpen()) {
+                        if (nettyChat.getSocketChannel()!=null&&nettyChat.getSocketChannel().isOpen()) {
                             adapter.addItem(new Chat(-1, textView.getText().toString(), 0, user));
                             recyclerView.smoothScrollToPosition(adapter.getItemCount());
                             nettyChat.sendMessage(getMessage("send", textView.getText().toString()));
@@ -446,7 +470,6 @@ public class VideoBroadcaster extends BaseActivity {
                             .setMessage(R.string.broadcast_connection_lost)
                             .setPositiveButton(android.R.string.yes, null)
                             .show();
-
                     break;
             }
         }

@@ -1,13 +1,14 @@
 package com.info.idol.community.VideoBroadCast.liveVideoPlayer;
 
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,8 +53,6 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.ui.DebugTextViewHelper;
-import com.google.android.exoplayer2.ui.PlaybackControlView;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
@@ -75,8 +75,7 @@ import java.net.CookiePolicy;
 import java.util.HashMap;
 import java.util.Map;
 
-public class VideoPlayerActivity extends AppCompatActivity implements ExoPlayer.EventListener/*,
-        PlaybackControlView.VisibilityListener*/ {
+public class VideoPlayerActivity extends AppCompatActivity implements ExoPlayer.EventListener {
     public static final String RTMP_BASE_URL = "rtmp://35.229.103.161:1935/live/";
     public static final String PREFER_EXTENSION_DECODERS = "prefer_extension_decoders";
 
@@ -115,6 +114,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements ExoPlayer.
     private Room videoRoom;
     private RecyclerView recyclerView;
     private VideoChattingAdapter adapter;
+    private ImageView imageViewSend;
 
 
     @Override
@@ -178,14 +178,17 @@ public class VideoPlayerActivity extends AppCompatActivity implements ExoPlayer.
                 }
             }
         });
-        EditText mStreamChatEditText = (EditText) findViewById(R.id.stream_chat_edit_text);
+
+        final EditText mStreamChatEditText = (EditText) findViewById(R.id.stream_chat_edit_text);
         mStreamChatEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
                 switch (actionId) {
-                    case EditorInfo.IME_ACTION_DONE:
+                    case EditorInfo.IME_ACTION_SEND:
                         //메시지 전송
-                        if (nettyChat.getSocketChannel().isOpen()) {
+                        if (mStreamChatEditText.getText().toString().isEmpty()) {
+                            Snackbar.make(rootView, "할말을 입력하세요.", Snackbar.LENGTH_LONG).show();
+                        } else if (nettyChat.getSocketChannel().isOpen()) {
                             adapter.addItem(new Chat(-1, textView.getText().toString(), 0, user));
                             recyclerView.smoothScrollToPosition(adapter.getItemCount());
                             nettyChat.sendMessage(getMessage("send", textView.getText().toString()));
@@ -198,6 +201,24 @@ public class VideoPlayerActivity extends AppCompatActivity implements ExoPlayer.
                         return false;
                 }
                 return true;
+            }
+        });
+
+        imageViewSend = (ImageView) findViewById(R.id.ImageView_chat_send);
+        imageViewSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //메시지 전송
+                if (mStreamChatEditText.getText().toString().isEmpty()) {
+                    Snackbar.make(rootView, "할말을 입력하세요.", Snackbar.LENGTH_LONG).show();
+                } else if (nettyChat.getSocketChannel().isOpen()) {
+                    adapter.addItem(new Chat(-1, mStreamChatEditText.getText().toString(), 0, user));
+                    recyclerView.smoothScrollToPosition(adapter.getItemCount());
+                    nettyChat.sendMessage(getMessage("send", mStreamChatEditText.getText().toString()));
+                } else {
+                    Snackbar.make(rootView, "채팅연결이 좋지 않습니다.", Snackbar.LENGTH_LONG).show();
+                }
+                mStreamChatEditText.setText(null);
             }
         });
     }
@@ -235,8 +256,10 @@ public class VideoPlayerActivity extends AppCompatActivity implements ExoPlayer.
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        nettyChat.setFinish(true);
-        nettyChat.sendMessage(getMessage("exit_room", null));
+        if (nettyChat.getSocketChannel().isConnected()) {
+            nettyChat.setFinish(true);
+            nettyChat.sendMessage(getMessage("exit_room", null));
+        }
     }
 
     @Override
@@ -250,13 +273,14 @@ public class VideoPlayerActivity extends AppCompatActivity implements ExoPlayer.
         }
     }
 
-    @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        // Show the controls on any key event.
-        simpleExoPlayerView.showController();
-        // If the event was not handled then see if the player view can handle it as a media key event.
-        return super.dispatchKeyEvent(event) || simpleExoPlayerView.dispatchMediaKeyEvent(event);
-    }
+
+//    @Override
+//    public boolean dispatchKeyEvent(KeyEvent event) {
+//        // Show the controls on any key event.
+//        simpleExoPlayerView.showController();
+//        // If the event was not handled then see if the player view can handle it as a media key event.
+//        return super.dispatchKeyEvent(event) || simpleExoPlayerView.dispatchMediaKeyEvent(event);
+//    }
 
 //    @Override
 //    public void onClick(View view) {
@@ -330,6 +354,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements ExoPlayer.
                 player.seekTo(resumeWindow, resumePosition);
             }
             player.prepare(mediaSource, !haveResumePosition, false);
+
             needRetrySource = false;
         }
     }
@@ -413,13 +438,18 @@ public class VideoPlayerActivity extends AppCompatActivity implements ExoPlayer.
     @Override
     public void onLoadingChanged(boolean isLoading) {
         // Do nothing.
+        Log.e("loadinggg", "" + isLoading);
+
     }
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-//        if (playbackState == ExoPlayer.STATE_ENDED) {
-//            showControls();
-//        }
+        Log.e("loadinggg", "" + playbackState);
+
+        if (playbackState == ExoPlayer.STATE_ENDED) {
+//            simpleExoPlayerView.remo
+
+        }
     }
 
     @Override
@@ -439,6 +469,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements ExoPlayer.
 
     @Override
     public void onPlayerError(ExoPlaybackException e) {
+        Log.e("loadinggg", e.toString());
         String errorString = null;
         if (e.type == ExoPlaybackException.TYPE_RENDERER) {
             Exception cause = e.getRendererException();
@@ -564,13 +595,27 @@ public class VideoPlayerActivity extends AppCompatActivity implements ExoPlayer.
                     content = map.get("content").toString();
                 } else if (map.get("method").toString().equals("exit_room")) {
                     act = 1;
+                    nickName = map.get("nickName").toString();
                     content = nickName + "님이 나갔습니다.";
                 } else {
                     //방장이 방을 지웠다면 소켓 끊고 액티비티 종료.
+                    new AlertDialog.Builder(VideoPlayerActivity.this)
+                            .setMessage(R.string.end_play)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    finish();
+                                    dialogInterface.dismiss();
+                                }
+                            })
+                            .setCancelable(false)
+                            .show();
                 }
-                Chat chat = new Chat(-1, content, act, new User(uid, nickName, null));
-                adapter.addItem(chat);
-                recyclerView.smoothScrollToPosition(adapter.getItemCount() - 1);
+                if (!map.get("method").toString().equals("remove_room")) {
+                    Chat chat = new Chat(-1, content, act, new User(uid, nickName, null));
+                    adapter.addItem(chat);
+                    recyclerView.smoothScrollToPosition(adapter.getItemCount() - 1);
+                }
 
             } catch (IOException e) {
                 e.printStackTrace();

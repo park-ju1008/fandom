@@ -73,7 +73,11 @@ public class NettyChat {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             if(isFinish){
-                closeSocketChannel();
+                try {
+                    socketChannel.finishConnect();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -128,6 +132,16 @@ public class NettyChat {
 
     public void sendMessage(String message){
         new SendmsgTask().execute(message);
+    }
+
+    public boolean isConnected(){
+        boolean ret;
+        if(socketChannel!=null&&socketChannel.isConnected()){
+            ret=true;
+        }else{
+            ret=false;
+        }
+        return ret;
     }
 
     public void closeSocketChannel(){

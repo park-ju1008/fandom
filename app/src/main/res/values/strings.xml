@@ -17,7 +17,9 @@
     <string name="start_broadcasting">방송시작</string>
     <string name="stream_not_started">Failed to start. Please check server url and security credentials.</string>
     <string name="video_people">명 시청중</string>
-    <string name="retry">Retry</string>
+    <string name="end_broadcasting">방송을 종료 하시겠습니까?</string>
+    <string name="end_play">방송이 종료되었습니다.</string>
+    <string name="full_videoRoom">방 인원이 꽉 찾습니다.</string>
     <string name="storage_permission_denied">저장소 접근을 위한 권한이 거부되었습니다.</string>
     <string name="error_no_decoder">This device does not provide a decoder for <xliff:g id="mime_type">%1$s</xliff:g></string>
     <string name="error_no_secure_decoder">This device does not provide a secure decoder for <xliff:g id="mime_type">%1$s</xliff:g></string>
