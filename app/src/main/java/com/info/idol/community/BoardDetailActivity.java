@@ -8,17 +8,21 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.info.idol.community.Adapter.BoardDetailAdapter;
@@ -47,6 +51,7 @@ public class BoardDetailActivity extends BaseActivity {
     private InputMethodManager imm;
     private ApiService apiService;
     private Board board;
+    private HashMap<String, Object> input;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,10 +62,52 @@ public class BoardDetailActivity extends BaseActivity {
         ConstraintLayout constraintLayout = findViewById(R.id.constraint_wrapper);
 
         mUser = GlobalApplication.getGlobalApplicationContext().getUser();
-        Intent intent = getIntent();
-        board = intent.getParcelableExtra("schedule");
+        final Intent intent = getIntent();
+        board = intent.getParcelableExtra("content");
         mAdapter.addItem(new BoardDetail(0, board));
+        mAdapter.setOnLikeListener(new BoardDetailAdapter.onLikeListener() {
+            @Override
+            public void onClick(Boolean check) {
+                if (check) {
+                    input.put("type", "like");
+                } else {
+                    input.put("type", "unlike");
+                }
+                apiService.postBoardLike(input).enqueue(new Callback<Boolean>() {
+                    @Override
+                    public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                        if (!response.body()) {
+                            Toast.makeText(BoardDetailActivity.this, "네트워크 오류", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Boolean> call, Throwable t) {
+
+                    }
+                });
+            }
+        });
         apiService = GlobalApplication.getGlobalApplicationContext().getRetrofitApiService();
+        input = new HashMap<>();
+        input.put("type", "check");
+        input.put("boardId", board.getBno());
+        input.put("ucode", mUser.getUid());
+        apiService.postBoardLike(input).enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                if (response.body()) {
+                    mAdapter.setIslike(true);
+                } else {
+                    mAdapter.setIslike(false);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                Log.e("TTTT", t.toString());
+            }
+        });
         apiService.getCommentList(board.getBno()).enqueue(new Callback<List<Comment>>() {
             @Override
             public void onResponse(Call<List<Comment>> call, Response<List<Comment>> response) {
@@ -176,34 +223,7 @@ public class BoardDetailActivity extends BaseActivity {
                         input.put("parent", comment.getCno());
                     }
                     progressON("작성중");
-                    apiService.postComment(input).enqueue(new Callback<Comment>() {
-                        @Override
-                        public void onResponse(Call<Comment> call, Response<Comment> response) {
-                            progressOFF();
-                            if (response.isSuccessful()) {
-                                Comment result = response.body();
-                                result.setContent(et_input.getText().toString());
-                                result.setState(0);
-                                result.setUser(mUser);
-                                int position;
-                                if (selComment == 0) {
-                                    Log.e("CreateComment", result.toString());
-                                    position = mAdapter.addItem(new BoardDetail(mAdapter.ITEM_VIEW_TYPE_COMMENT, result));
-                                } else {
-                                    position = mAdapter.addItem(new BoardDetail(mAdapter.ITEM_VIEW_TYPE_RECOMMENT, result));
-                                }
-                                et_input.setText(null);
-                                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.RESULT_UNCHANGED_SHOWN);
-                                recyclerView.scrollToPosition(position);
-                            }
-
-                        }
-
-                        @Override
-                        public void onFailure(Call<Comment> call, Throwable t) {
-                            Log.d("Throw", t.toString());
-                        }
-                    });
+                    apiService.postComment(input).enqueue(commentCallback);
 
                 }
             }
@@ -217,6 +237,25 @@ public class BoardDetailActivity extends BaseActivity {
         return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                getIntent().putExtra("content", board);
+                setResult(RESULT_OK, getIntent());
+                finish();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        getIntent().putExtra("content", board);
+
+        setResult(RESULT_OK, getIntent());
+        finish();
+    }
 
     private void dialog(final CharSequence[] items, final int position) {
 
@@ -234,38 +273,20 @@ public class BoardDetailActivity extends BaseActivity {
                         mAdapter.setSelectedPosition(position);
                         et_input.setHint("대댓글을 입력하세요.");
                         et_input.requestFocus();
-                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+//                        imm.showSoftInput(et_input,InputMethodManager.SHOW_IMPLICIT);
+                        imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 1);
                     }
 
                 } else if (selectedText.equals("삭제")) {
                     progressON("삭제중..");
-                    apiService.postDeleteComment(comment.getCno()).enqueue(new Callback<Boolean>() {
-                        @Override
-                        public void onResponse(Call<Boolean> call, Response<Boolean> response) {
-                            progressOFF();
-                            if (response.body()) {
-                                if (comment.getParent() != null) {
-                                    mAdapter.removeItem(position);
-                                } else {
-                                    Comment parentComment = (Comment) mAdapter.getItem(position).getData();
-                                    parentComment.setState(1);
-                                    mAdapter.notifyItemChanged(position);
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<Boolean> call, Throwable t) {
-                            Log.e("TEST", t.toString());
-                        }
-                    });
+                    apiService.postDeleteComment(comment.getCno(), board.getBno()).enqueue(commentCallback);
 
                 } else if (selectedText.equals("쪽지 보내기")) {
-                    User user=comment.getUser();
-                    Intent intent= new Intent(BoardDetailActivity.this,NoteWriteActivity.class);
-                    intent.putExtra("recipient",user);
+                    User user = comment.getUser();
+                    Intent intent = new Intent(BoardDetailActivity.this, NoteWriteActivity.class);
+                    intent.putExtra("recipient", user);
                     startActivity(intent);
-                    overridePendingTransition(R.anim.sliding_up,R.anim.stay);
+                    overridePendingTransition(R.anim.sliding_up, R.anim.stay);
                 } else {
                     //신고하기
                 }
@@ -289,7 +310,8 @@ public class BoardDetailActivity extends BaseActivity {
                 if (position != 0) {
                     et_input.setHint("대댓글을 입력하세요.");
                     et_input.requestFocus();
-                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                    imm.showSoftInput(et_input,0);
+//                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
                 } else {
                     et_input.setHint("댓글을 입력하세요.");
                 }
@@ -300,10 +322,50 @@ public class BoardDetailActivity extends BaseActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 et_input.requestFocus();
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 1);
             }
         });
         builder.show();
     }
+
+    private Callback commentCallback=new Callback<List<Comment>>() {
+        @Override
+        public void onResponse(Call<List<Comment>> call, Response<List<Comment>> response) {
+            progressOFF();
+            if (response.isSuccessful()) {
+                ArrayList<BoardDetail> boardDetails = new ArrayList<>();
+                int count = 0;
+                for (Comment comment : response.body()) {
+                    Log.e("TESTCOMM", comment.toString());
+                    if (comment.getParent() == null) {
+                        boardDetails.add(new BoardDetail(mAdapter.ITEM_VIEW_TYPE_COMMENT, comment));
+                    } else {
+                        boardDetails.add(new BoardDetail(mAdapter.ITEM_VIEW_TYPE_RECOMMENT, comment));
+
+                    }
+                    if (comment.getState() == 0) {
+                        count++;
+                    }
+                }
+                board.setComment(count);
+
+                et_input.setText(null);
+//                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.RESULT_UNCHANGED_SHOWN);
+                imm.hideSoftInputFromWindow(et_input.getWindowToken(),InputMethodManager.RESULT_UNCHANGED_SHOWN);
+//                imm.hideSoftInputFromWindow(et_input.getWindowToken(), 0);
+                int position=mAdapter.getSelectedPosition();
+                mAdapter.setSelectedPosition(0);
+                mAdapter.changeComment(boardDetails);
+                if(position!=0){
+                    recyclerView.scrollToPosition(position);
+                }
+            }
+        }
+
+        @Override
+        public void onFailure(Call<List<Comment>> call, Throwable t) {
+
+        }
+    };
 
 }

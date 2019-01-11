@@ -100,7 +100,7 @@
         <activity android:name=".VideoBroadCast.VideoBroadcaster" />
         <activity android:name=".VideoBroadCast.liveVideoPlayer.VideoPlayerActivity" />
         <activity android:name=".VideoBroadCast.VideoBroadListActivity" />
-
+        <activity android:name="BoardListActivity"/>
         <service
             android:name=".fireService.MyJobService"
             android:exported="false">

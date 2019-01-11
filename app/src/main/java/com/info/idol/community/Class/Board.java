@@ -126,6 +126,13 @@ public class Board implements Parcelable {
         this.image = image;
     }
 
+    public void increaseComment(int count){
+        this.comment+=count;
+    }
+
+    public void decreaseComment(int count){
+        this.comment-=count;
+    }
 
     @Override
     public int describeContents() {

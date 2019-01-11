@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.info.idol.community.Class.User;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class MyDataBase extends SQLiteOpenHelper {
@@ -30,7 +31,9 @@ public class MyDataBase extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS room(id INTEGER PRIMARY KEY," +
-                " title TEXT not null)");
+                " title TEXT not null,"+
+                "people INTEGER,"+
+                "capacity INTEGER)");
         db.execSQL("CREATE TABLE IF NOT EXISTS chat(id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "uid INTEGER not null," +
                 "content TEXT not null," +
@@ -40,16 +43,17 @@ public class MyDataBase extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE IF NOT EXISTS user(uid INTEGER PRIMARY KEY," +
                 "nickname TEXT not null," +
                 "profile_image TEXT)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS ");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
     }
 
-    public void insertRoom(int roomId, String title) {
+    public void insertRoom(Room room) {
         //읽고 쓰기가 가능하게 DB 열기
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT OR IGNORE INTO room VALUES("+roomId+",'" + title + "')");
+        db.execSQL("INSERT OR IGNORE INTO room VALUES(?,?,?,?)",new String[]{""+room.getId(),room.getName(),""+room.getPeopleNum(),""+room.getCapacity()});
         db.close();
     }
 
@@ -71,6 +75,16 @@ public class MyDataBase extends SQLiteOpenHelper {
         db.execSQL("REPLACE INTO user VALUES(" + uid + ",?,?)",new String[]{nickname,profile_image});
         db.close();
     }
+    public boolean findMyRoom(int rid){
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor=db.rawQuery("SELECT id FROM room WHERE id=?",new String[]{""+rid});
+        int rowNum=cursor.getCount();
+        if(rowNum!=0){
+            return true;
+        }else{
+            return false;
+        }
+    }
     public User getUser(int uid){
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT uid,nickname,profile_image FROM user WHERE uid=?",new String[]{""+uid});
@@ -86,6 +100,29 @@ public class MyDataBase extends SQLiteOpenHelper {
             chats.add(new Chat(cursor.getInt(0), cursor.getString(1),cursor.getInt(2), new User(cursor.getInt(3), cursor.getString(4), cursor.getString(5))));
         }
         return chats;
+    }
+
+    public ArrayList<Room> getRoomList(){
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor=db.rawQuery("SELECT * FROM room",null);
+        ArrayList<Room> rooms=new ArrayList<>();
+        while (cursor.moveToNext()){
+            rooms.add(new Room(cursor.getInt(0),cursor.getString(1),cursor.getInt(2),cursor.getInt(3)));
+        }
+        return rooms;
+    }
+
+    public Room getRoom(int rid){
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor=db.rawQuery("SELECT * FROM room WHERE id=?",new String[]{""+rid});
+        cursor.moveToNext();
+        return new Room(cursor.getInt(0),cursor.getString(1),cursor.getInt(2),cursor.getInt(3));
+    }
+
+    public void updateUserNum(int rid,int num){
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("UPDATE room SET people=people+? WHERE id=?",new Integer[]{num,rid});
+        db.close();
     }
 
 }

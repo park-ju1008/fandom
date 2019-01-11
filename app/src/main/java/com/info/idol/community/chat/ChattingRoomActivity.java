@@ -51,19 +51,20 @@ public class ChattingRoomActivity extends BaseActivity {
         String roomName = getIntent().getStringExtra("roomName");
         int roomId = getIntent().getIntExtra("roomId", -1);
         int capacity = getIntent().getIntExtra("capacity", -1);
-        room = new Room(roomId, roomName, 1, capacity);
         user = GlobalApplication.getGlobalApplicationContext().getUser();
         myDataBase = MyDataBase.getInstance(this);
         //방에 입장 하는 것이라면
         if (method.equals("enter_room")) {
-            myDataBase.insertRoom(roomId, roomName);
+            room = myDataBase.getRoom(roomId);
+        } else {
+            room = new Room(roomId, roomName, 1, capacity);
         }
         //서버로 전송할 데이터를만들어준다 (방생성,방입장)
-        nettyChat=new NettyChat(getMessage(method,null));
+        nettyChat = new NettyChat(getMessage(method, null));
         nettyChat.setOnDataListener(new NettyChat.OnDataListener() {
             @Override
             public void onUpdate(String loadData) {
-                data=loadData;
+                data = loadData;
                 handler.post(showUpdate);
             }
 
@@ -125,8 +126,8 @@ public class ChattingRoomActivity extends BaseActivity {
                  * 화면에 뿌려준후 서버 전송
                  */
 //                message = getMessage("send", et_message.getText().toString());
-                int cid = myDataBase.insertChat(user.getUid(), et_message.getText().toString(),0, room.getId());
-                adapter.addItem(new Chat(cid, et_message.getText().toString(), 0,user));
+                int cid = myDataBase.insertChat(user.getUid(), et_message.getText().toString(), 0, room.getId());
+                adapter.addItem(new Chat(cid, et_message.getText().toString(), 0, user));
                 recyclerView.smoothScrollToPosition(adapter.getItemCount());
 //                new SendmsgTask().execute(message);
                 nettyChat.sendMessage(getMessage("send", et_message.getText().toString()));
@@ -161,8 +162,6 @@ public class ChattingRoomActivity extends BaseActivity {
     }
 
 
-
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -180,8 +179,8 @@ public class ChattingRoomActivity extends BaseActivity {
             String receive = data;
             int act = 0;
             String content = null;
-            int uid=0;
-            String nickName=null;
+            int uid = 0;
+            String nickName = null;
             String profileImage = null;
             try {
                 Map<String, Object> map = new HashMap<String, Object>();
@@ -189,7 +188,7 @@ public class ChattingRoomActivity extends BaseActivity {
                 });
                 if (map.get("method").toString().equals("create_room")) {
                     room.setId((int) map.get("roomId"));
-                    myDataBase.insertRoom(room.getId(), room.getName());
+                    myDataBase.insertRoom(room);
                 } else if (map.get("method").toString().equals("enter_room")) {
                     //닉네임 날리기
                     uid = Integer.parseInt(map.get("userId").toString());
@@ -197,6 +196,7 @@ public class ChattingRoomActivity extends BaseActivity {
                     if (map.get("profileImage") != null) {
                         profileImage = map.get("profileImage").toString();
                     }
+                    myDataBase.updateUserNum(room.getId(),1);
                     myDataBase.insertUser(uid, nickName, profileImage);
                     //입장말을 위한 셋팅
                     act = 1;
@@ -235,7 +235,7 @@ public class ChattingRoomActivity extends BaseActivity {
         if (method.equals("create_room")) {
             SharedPreferences pref = getSharedPreferences("user", MODE_PRIVATE);
             String accessToken = pref.getString("AccessToken", "");
-            map.put("type",0);
+            map.put("type", 0);
             map.put("deviceToken", accessToken);
             map.put("roomName", room.getName());
             map.put("capacity", room.getCapacity());

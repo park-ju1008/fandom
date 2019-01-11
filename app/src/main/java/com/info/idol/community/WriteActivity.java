@@ -34,6 +34,7 @@ import com.gun0912.tedpicker.Config;
 import com.gun0912.tedpicker.ImagePickerActivity;
 import com.info.idol.community.Adapter.RecyclerImageAdapter;
 import com.info.idol.community.Class.Board;
+import com.info.idol.community.Class.BoardDetail;
 import com.info.idol.community.Class.FileHandler;
 import com.info.idol.community.Class.MyResponse;
 import com.info.idol.community.retrofit.ApiService;
@@ -50,13 +51,16 @@ import retrofit2.Response;
 
 public class WriteActivity extends BaseActivity {
     private static final int INTENT_REQUEST_GET_IMAGES = 13;
-    private TextView text_day, text_time;
+    private static final int BOARD_SCHEDULE=7;
+    private TextView tv_day, tv_time;
+    private EditText et_title;
     private EditText text_main;
     private RecyclerImageAdapter mImageAdapter;
     private ApiService mApiService;
     private ArrayList<Uri> image_uris = new ArrayList<>();
     private int selImage = 0;
     private String sid;
+    private int bcode;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,8 +79,9 @@ public class WriteActivity extends BaseActivity {
         getSupportActionBar().setTitle("글쓰기");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_cancel);
-        text_day = (TextView) findViewById(R.id.text_day);
-        text_time = (TextView) findViewById(R.id.text_time);
+        tv_day = (TextView) findViewById(R.id.text_day);
+        tv_time = (TextView) findViewById(R.id.text_time);
+        et_title=(EditText)findViewById(R.id.editText_write_title);
         text_main = (EditText) findViewById(R.id.text_main);
         ImageButton hashtag = (ImageButton) findViewById(R.id.hashtag_Button);
         ImageButton camera = (ImageButton) findViewById(R.id.image_Button);
@@ -84,31 +89,38 @@ public class WriteActivity extends BaseActivity {
         camera.setOnClickListener(OnClickListener);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
         LinearLayoutManager manager = new LinearLayoutManager(this);
+        LinearLayout timeLayout = (LinearLayout) findViewById(R.id.layout_time);
         manager.setOrientation(LinearLayoutManager.HORIZONTAL);
         recyclerView.setLayoutManager(manager);
         mImageAdapter = new RecyclerImageAdapter(this, image_uris);
         recyclerView.setAdapter(mImageAdapter);
 
         Intent intent = getIntent();
-        Long time = intent.getLongExtra("TimeInMillis", 0);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        text_day.setText(dateFormat.format(time));
-        text_time.setText("00:00");
-
-        LinearLayout timeLayout = (LinearLayout) findViewById(R.id.layout_time);
-        timeLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //타임피커
-                TimePickerDialog timePickerDialog = new TimePickerDialog(WriteActivity.this, new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker timePicker, int hour, int min) {
-                        text_time.setText(hour + ":" + min);
-                    }
-                }, 0, 0, true);
-                timePickerDialog.show();
-            }
-        });
+        bcode=intent.getIntExtra("boardCode",-1);
+        if(bcode==BOARD_SCHEDULE){
+            //스케줄 작성시.
+            et_title.setVisibility(View.GONE);
+            Long time = intent.getLongExtra("TimeInMillis", 0);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            tv_day.setText(dateFormat.format(time));
+            tv_time.setText("00:00");
+            timeLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //타임피커
+                    TimePickerDialog timePickerDialog = new TimePickerDialog(WriteActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                        @Override
+                        public void onTimeSet(TimePicker timePicker, int hour, int min) {
+                            tv_time.setText(hour + ":" + min);
+                        }
+                    }, 0, 0, true);
+                    timePickerDialog.show();
+                }
+            });
+        }else{
+            //스케줄 외의 게시판 작성시.
+            timeLayout.setVisibility(View.GONE);
+        }
 
     }
 
@@ -127,24 +139,32 @@ public class WriteActivity extends BaseActivity {
                 finish();
                 return true;
             case R.id.action_send:
-                String eventTime = "" + text_day.getText() + " " + text_time.getText();
-                final Board schedule = new Board(eventTime, text_main.getText().toString());
+                final Board board;
+                if(bcode==BOARD_SCHEDULE){
+                    String eventTime = "" + tv_day.getText() + " " + tv_time.getText();
+                    board = new Board(eventTime, text_main.getText().toString());
+                }else{
+                    board = new Board(et_title.getText().toString(), text_main.getText().toString());
+                }
+
                 SharedPreferences pref = getSharedPreferences("user", MODE_PRIVATE);
                 String accessToken = pref.getString("AccessToken", "");
-                FileHandler fileHandler = new FileHandler(this, mApiService, sid, "7", accessToken);
+                FileHandler fileHandler = new FileHandler(this, mApiService, sid, bcode, accessToken);
                 progressON("uploading..");
-                fileHandler.upload(schedule, image_uris, new Callback<MyResponse>() {
+                fileHandler.upload(board, image_uris, new Callback<MyResponse>() {
                     @Override
                     public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
                         if (response.isSuccessful()) {
-                            schedule.setBno(response.body().bno);
-                            schedule.setUser(response.body().user);
-                            schedule.setImage(response.body().image);
-                            schedule.setDate(response.body().date);
+                            board.setBno(response.body().bno);
+                            board.setUser(response.body().user);
+                            board.setImage(response.body().image);
+                            board.setDate(response.body().date);
                             //스케줄 완성 했으니 스케줄 란으로 넘겨서넣기
-                            Intent intent = new Intent();
-                            intent.putExtra("schedule", schedule);
-                            setResult(RESULT_OK, intent);
+                            Intent intent = new Intent(WriteActivity.this,BoardDetailActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+                            intent.putExtra("content", board);
+//                            setResult(RESULT_OK, intent);
+                            startActivity(intent);
                             finish();
                         }
                         progressOFF();

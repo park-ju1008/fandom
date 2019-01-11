@@ -23,6 +23,7 @@ import com.info.idol.community.GlobalApplication;
 import com.info.idol.community.R;
 import com.info.idol.community.VideoBroadCast.liveVideoPlayer.VideoPlayerActivity;
 import com.info.idol.community.chat.Room;
+import com.info.idol.community.chat.RoomFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,11 +76,11 @@ public class VideoBroadListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    GlobalApplication.getGlobalApplicationContext().getRetrofitApiService().getAvailableRoom(itemList.get(position).getId()).enqueue(new Callback<Integer>() {
+                    GlobalApplication.getGlobalApplicationContext().getRetrofitApiService().getAvailableRoom(itemList.get(position).getId()).enqueue(new Callback<RoomFactory>() {
                         @Override
-                        public void onResponse(Call<Integer> call, Response<Integer> response) {
-                            switch (response.body().intValue()) {
-                                case 0:
+                        public void onResponse(Call<RoomFactory> call, Response<RoomFactory> response) {
+                            switch (response.body().getCondition()) {
+                                case RoomFactory.AVAILABLE:
                                     //방에 여유 공간이 있을때
                                     Intent intent = new Intent(context, VideoPlayerActivity.class);
                                     intent.putExtra("method", "enter_room");
@@ -87,11 +88,11 @@ public class VideoBroadListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                                     intent.putExtra("roomId", itemList.get(position).getId());
                                     ((Activity) context).startActivity(intent);
                                     break;
-                                case 1:
+                                case RoomFactory.FULL:
                                     //방인원이 다 찼을때
                                     Toast.makeText(context, R.string.full_videoRoom, Toast.LENGTH_SHORT).show();
                                     break;
-                                case 2:
+                                case RoomFactory.NOT_EXIST:
                                     //방이 없다면
                                     Toast.makeText(context, R.string.end_play, Toast.LENGTH_SHORT).show();
                                     itemList.remove(position);
@@ -103,7 +104,7 @@ public class VideoBroadListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                         }
 
                         @Override
-                        public void onFailure(Call<Integer> call, Throwable t) {
+                        public void onFailure(Call<RoomFactory> call, Throwable t) {
                             Log.e("ERROR",t.toString());
                         }
                     });

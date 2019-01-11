@@ -152,9 +152,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         } else if (method.equals("enter_room")) {
             User user=setUserDataBase(board);
             int roomId=Integer.parseInt(board.get("roomId"));
+            myDataBase.updateUserNum(roomId,1);
             myDataBase.insertChat(user.getUid(), user.getNickname()+"님이 들어왔습니다.", 1, roomId);
         } else if (method.equals("exit_room")) {
-
+            int roomId=Integer.parseInt(board.get("roomId"));
+            myDataBase.updateUserNum(roomId,-1);
         } else {
             //메모장
             // ex)) {body=추가, date=2018-12-14 16:04:48, user={"uid":"17","image":"5b3d918c503e8658dad7ce24030164f8.jpg","nickname":"대박잉"}}

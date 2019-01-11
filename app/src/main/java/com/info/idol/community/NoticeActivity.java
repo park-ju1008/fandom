@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.widget.ImageView;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -16,6 +17,7 @@ import com.info.idol.community.Adapter.NoticeAdapter;
 import com.info.idol.community.Class.Board;
 import com.info.idol.community.Class.JsoupParser;
 import com.info.idol.community.Class.Star;
+import com.info.idol.community.custom.EmptyRecyclerView;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -57,14 +59,16 @@ public class NoticeActivity extends AppCompatActivity implements NoticeAdapter.O
                 .build();
         adView.loadAd(adRequest);
 
-        final Toolbar myToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
+        final Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
         getSupportActionBar().setTitle("공지사항");
-        RecyclerView recyclerView=findViewById(R.id.recyclerView);
+        ImageView emptyView=(ImageView)findViewById(R.id.emptyView);
+        EmptyRecyclerView recyclerView=(EmptyRecyclerView)findViewById(R.id.recyclerView);
         LinearLayoutManager layoutManager=new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         mAdapter=new NoticeAdapter(this);
         recyclerView.setAdapter(mAdapter);
+        recyclerView.setEmptyView(emptyView);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {

@@ -54,7 +54,8 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
             Date date=inputdateFormat.parse(schedule.getTitle());
             holder.text_time.setText(outputdateFormat.format(date));
             holder.text_body.setText(schedule.getBody());
-            holder.text_reply.setText(""+schedule.getComment());
+            holder.text_like.setText(String.valueOf(schedule.getLike()));
+            holder.text_reply.setText(String.valueOf(schedule.getComment()));
             if(!schedule.getImage().isEmpty()){
                 JSONArray jarray = new JSONArray(schedule.getImage());
                 Glide.with(context).load("http://35.229.103.161/uploads/"+jarray.get(0).toString()).centerCrop().into(holder.img_main);
@@ -74,6 +75,7 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
     public int getItemCount() {
         return mSchedules.size();
     }
+
     public void addSchedules(List<Board> schedules){
         mSchedules.clear();
         mSchedules.addAll(schedules);
@@ -89,14 +91,20 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
         //체인지 알려줘야함
     }
 
+    public void changeSchedule(Board schedule,int position){
+        mSchedules.set(position,schedule);
+        notifyItemChanged(position);
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView text_time, text_body, text_reply;
+        TextView text_time, text_body, text_reply,text_like;
         ImageView img_main;
 
         public ViewHolder(View itemView) {
             super(itemView);
             text_time = (TextView) itemView.findViewById(R.id.text_time);
             text_body = (TextView) itemView.findViewById(R.id.text_body);
+            text_like=(TextView)itemView.findViewById(R.id.textView_like);
             text_reply = (TextView) itemView.findViewById(R.id.text_reply);
             img_main=(ImageView)itemView.findViewById(R.id.Iv_schedule_image);
             itemView.setOnClickListener(this);
@@ -108,7 +116,8 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
             Board schedule=mSchedules.get(getAdapterPosition());
             Log.e("TESTCLICK",schedule.toString());
             Intent intent=new Intent(context,BoardDetailActivity.class);
-            intent.putExtra("schedule",schedule);
+            intent.putExtra("content",schedule);
+            intent.putExtra("position",getAdapterPosition());
             ((Activity)context).startActivityForResult(intent,ScheduleActivity.COMMENT_COUNT_REQUEST);
         }
     }

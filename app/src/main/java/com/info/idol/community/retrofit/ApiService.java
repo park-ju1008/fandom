@@ -6,6 +6,7 @@ import com.info.idol.community.Class.MyResponse;
 import com.info.idol.community.Class.Star;
 import com.info.idol.community.Class.User;
 import com.info.idol.community.chat.Room;
+import com.info.idol.community.chat.RoomFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +15,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FieldMap;
@@ -32,7 +34,7 @@ public interface ApiService {
      *
      * @param param 요청에 필요한 값들.
      * @return Data 객체를 JSON 형태로 반환.
-     * @FieldMap HashMap<String       ,               Object> param :
+     * @FieldMap HashMap<String               ,                               Object> param :
      * Field 형식을 통해 넘겨주는 값들이 여러 개일 때 FieldMap을 사용함.
      * Retrofit에서는 Map 보다는 HashMap 권장.
      * @FormUrlEncoded Field 형식 사용 시 Form이 Encoding 되어야 하기 때문에 사용하는 어노테이션
@@ -75,16 +77,25 @@ public interface ApiService {
     @POST("write.php")
     Call<MyResponse> uploadImage(@Part("item") RequestBody data, @Part List<MultipartBody.Part> files);
 
-    @GET("commentLoad.php")
+    //    @GET("commentLoad.php")
+//    Call<List<Comment>> getCommentList(@Query("bno") String bno);
+    @GET("comment.php")
     Call<List<Comment>> getCommentList(@Query("bno") String bno);
 
-    @FormUrlEncoded
-    @POST("comment_insert.php")
-    Call<Comment> postComment(@FieldMap HashMap<String, Object> param);
+//    @FormUrlEncoded
+//    @POST("comment_insert.php")
+//    Call<Comment> postComment(@FieldMap HashMap<String, Object> param);
 
     @FormUrlEncoded
-    @POST("comment_delete.php")
-    Call<Boolean> postDeleteComment(@Field("cno") String cno);
+    @POST("comment.php")
+    Call<List<Comment>> postComment(@FieldMap HashMap<String, Object> param);
+
+    @DELETE("comment.php")
+    Call<List<Comment>> postDeleteComment(@Query("cno") String cno, @Query("bno") String bno);
+
+//    @FormUrlEncoded
+//    @POST("comment_delete.php")
+//    Call<Boolean> postDeleteComment(@Field("cno") String cno);
 
     @FormUrlEncoded
     @POST("sendNote.php")
@@ -95,14 +106,25 @@ public interface ApiService {
     Call<List<Board>> postLoadNote(@FieldMap HashMap<String, Object> param);
 
     @DELETE("note_delete.php")
-    Call<ResponseBody> deleteNote(@Query("type")int type,@Query("bno") String bno);
+    Call<ResponseBody> deleteNote(@Query("type") int type, @Query("bno") String bno);
 
     /**
      * 채팅방 목록 불러오는 메소드
      */
     @GET("chatList.php")
-    Call<List<Room>> getChatList(@Query("start") int start,@Query("type")int type);
+    Call<List<Room>> getChatList(@Query("start") int start, @Query("type") int type);
 
     @GET("roomCheck.php")
-    Call<Integer> getAvailableRoom(@Query("roomId")int roomId);
+    Call<RoomFactory> getAvailableRoom(@Query("roomId") int roomId);
+
+    /**
+     * 게시판 목록을 불러오는 메소드
+     */
+    @FormUrlEncoded
+    @POST("boardList.php")
+    Call<List<Board>> getBoardList(@FieldMap HashMap<String, Object> param);
+
+    @FormUrlEncoded
+    @POST("boardLike.php")
+    Call<Boolean> postBoardLike(@FieldMap HashMap<String, Object> param);
 }

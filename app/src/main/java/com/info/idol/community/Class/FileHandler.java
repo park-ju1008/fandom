@@ -34,7 +34,7 @@ public class FileHandler {
     private Context mContext;
     private ApiService mApiService;
     private String sid;  //스타 아이디
-    private String bcdoe; //게시판 타입
+    private int bcode; //게시판 타입
     private String accessToken;
 
     public FileHandler(Context context, ApiService apiService) {
@@ -42,19 +42,19 @@ public class FileHandler {
         mApiService = apiService;
     }
 
-    public FileHandler(Context context, ApiService apiService, String sid, String bcode, String accessToken) {
+    public FileHandler(Context context, ApiService apiService, String sid, int bcode, String accessToken) {
         mContext = context;
         mApiService = apiService;
         this.sid = sid;
-        this.bcdoe = bcode;
+        this.bcode = bcode;
         this.accessToken = accessToken;
     }
 
     public void upload(Board schedule, List<Uri> uris, Callback<MyResponse> callback) {
 
         JSONObject json = null;
-        Map<String, String> data = new HashMap<String, String>();
-        data.put("boardtype", bcdoe);
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("boardtype", bcode);
         data.put("title", schedule.getTitle());
         data.put("body", schedule.getBody());
         data.put("sid", sid);

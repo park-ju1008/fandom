@@ -11,6 +11,16 @@
     <string name="selection_moreinfo">더보기</string>
     <string name="selection_talk">톡톡</string>
     <string name="selection_bot">가상톡</string>
+    <string name="board_my_write">내가 쓴 글</string>
+    <string name="board_my_reply">댓글 단 글</string>
+    <string name="board_sc">스밍인증</string>
+    <string name="board_pick">팬 픽</string>
+    <string name="board_art">팬아트</string>
+    <string name="board_free">자유게시판</string>
+    <string name="board_info">정보게시판</string>
+    <string name="board_goods">굿즈장터</string>
+    <string name="write_title_hint">제목을 입력하세요.</string>
+    <string name="write_body_hint">여기를 눌러서 글을 작성할 수 있습니다.깨끗한 글 작성부탁드립니다 :)</string>
     <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
     <string name="live_indicator">on-air</string>
     <string name="stream_chat_hint">할말을 적어주세요.</string>
@@ -19,6 +29,7 @@
     <string name="video_people">명 시청중</string>
     <string name="end_broadcasting">방송을 종료 하시겠습니까?</string>
     <string name="end_play">방송이 종료되었습니다.</string>
+    <string name="end_room">채팅이 종료된 방입니다.</string>
     <string name="full_videoRoom">방 인원이 꽉 찾습니다.</string>
     <string name="storage_permission_denied">저장소 접근을 위한 권한이 거부되었습니다.</string>
     <string name="error_no_decoder">This device does not provide a decoder for <xliff:g id="mime_type">%1$s</xliff:g></string>
@@ -27,4 +38,7 @@
     <string name="error_instantiating_decoder">Unable to instantiate decoder <xliff:g id="decoder_name">%1$s</xliff:g></string>
     <string name="error_unsupported_video">Media includes video tracks, but none are playable by this device</string>
     <string name="error_unsupported_audio">Media includes audio tracks, but none are playable by this device</string>
+    <string name="URL">http://35.229.103.161/uploads/</string>
+    <string name="delete_comment_name">(삭 제)</string>
+    <string name="delete_comment_body">삭제된 댓글 입니다.</string>
 </resources>

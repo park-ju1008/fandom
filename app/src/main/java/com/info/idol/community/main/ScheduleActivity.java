@@ -137,6 +137,7 @@ public class ScheduleActivity extends BottomNavigationParentActivity {
             @Override
             public void onClick(View view) {
                 Intent intent=new Intent(ScheduleActivity.this,WriteActivity.class);
+                intent.putExtra("boardCode",7);
                 intent.putExtra("TimeInMillis",currentCalender.getTimeInMillis());
                 startActivityForResult(intent,WRITE_REQUEST);
             }
@@ -147,12 +148,15 @@ public class ScheduleActivity extends BottomNavigationParentActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode==WRITE_REQUEST&&resultCode==RESULT_OK){
-            Board loadSchedule = (Board) data.getParcelableExtra("schedule");
+            Board loadSchedule = (Board) data.getParcelableExtra("content");
             Log.e("TEST","로드"+loadSchedule.getBody());
             compactCalendarView.addEvent(new Event(Color.WHITE,currentCalender.getTimeInMillis(),loadSchedule));
             mAdapter.addSchedule(loadSchedule);
             recyclerView.smoothScrollToPosition(mAdapter.getItemCount()-1);
             Log.e("TEST",loadSchedule.toString());
+        }else if(requestCode==COMMENT_COUNT_REQUEST&&resultCode==RESULT_OK){
+            Board loadSchedule = (Board) data.getParcelableExtra("content");
+            mAdapter.changeSchedule(loadSchedule,data.getIntExtra("position",0));
         }
     }
 

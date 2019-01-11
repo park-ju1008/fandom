@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,26 +70,37 @@ public class RoomListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    GlobalApplication.getGlobalApplicationContext().getRetrofitApiService().getAvailableRoom(itemList.get(position).getId()).enqueue(new Callback<Integer>() {
+                    GlobalApplication.getGlobalApplicationContext().getRetrofitApiService().getAvailableRoom(itemList.get(position).getId()).enqueue(new Callback<RoomFactory>() {
                         @Override
-                        public void onResponse(Call<Integer> call, Response<Integer> response) {
-                            switch (response.body().intValue()){
+                        public void onResponse(Call<RoomFactory> call, Response<RoomFactory> response) {
+                            Intent intent = new Intent(context, ChattingRoomActivity.class);
+                            switch (response.body().getCondition()) {
                                 case 0:
                                     //방에 여유 공간이 있을때
-                                    Intent intent = new Intent(context, ChattingRoomActivity.class);
-                                    intent.putExtra("method","enter_room");
-                                    intent.putExtra("roomName", itemList.get(position).getName());
-                                    intent.putExtra("roomId",itemList.get(position).getId());
-                                    intent.putExtra("capacity",itemList.get(position).getCapacity());
-                                    ((Activity)context).startActivity(intent);
+                                    Room room=response.body().getRoom();
+                                    room.setPeopleNum(room.getPeopleNum()+1);
+                                    MyDataBase.getInstance(context).insertRoom(room);
+                                    intent.putExtra("method", "enter_room");
+//                                    intent.putExtra("roomName", itemList.get(position).getName());
+                                    intent.putExtra("roomId", itemList.get(position).getId());
+//                                    intent.putExtra("capacity", itemList.get(position).getCapacity());
+                                    ((Activity) context).startActivity(intent);
                                     break;
                                 case 1:
                                     //방인원이 다 찼을때
-                                    Toast.makeText(context, R.string.full_videoRoom, Toast.LENGTH_SHORT).show();
+                                    if (MyDataBase.getInstance(context).findMyRoom(itemList.get(position).getId())) {
+                                        intent.putExtra("method", "enter_room");
+//                                        intent.putExtra("roomName", itemList.get(position).getName());
+                                        intent.putExtra("roomId", itemList.get(position).getId());
+//                                        intent.putExtra("capacity", itemList.get(position).getCapacity());
+                                        ((Activity) context).startActivity(intent);
+                                    }else {
+                                        Toast.makeText(context, R.string.full_videoRoom, Toast.LENGTH_SHORT).show();
+                                    }
                                     break;
                                 case 2:
                                     //방이 없다면
-                                    Toast.makeText(context, R.string.end_play, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(context, R.string.end_room, Toast.LENGTH_SHORT).show();
                                     itemList.remove(position);
                                     notifyItemRemoved(position);
                                     break;
@@ -98,8 +110,8 @@ public class RoomListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         }
 
                         @Override
-                        public void onFailure(Call<Integer> call, Throwable t) {
-
+                        public void onFailure(Call<RoomFactory> call, Throwable t) {
+                            Log.e("TEST",t.toString());
                         }
                     });
                 }
